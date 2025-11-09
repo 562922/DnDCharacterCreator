@@ -1,9 +1,9 @@
 //OpenAI
 import OpenAI from "openai";
-import 'dotenv/config';
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+import { config } from 'dotenv';
+config({ path: './code.env' });
+const client = new OpenAI();
+
 //consts
 const profBonus = 2;
 const difficultyClasses = {
@@ -44,7 +44,23 @@ const charSubraces = {
 };
 const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
 const backgrounds = ['Acolyte', 'Charlatan', 'Criminal', 'Entertainer', 'Folk Hero', 'Guild Artisan', 'Hermit', 'Noble', 'Outlander', 'Sage', 'Sailor', 'Soldier', 'Urchin'];
-const languages = ['Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin', 'Halfling', 'Orc', 'Abyssal', 'Celestial', 'Draconic', 'Deep Speech', 'Infernal', 'Primordial', 'Sylvan', 'Undercommon'];
+const languages = ['Common', 'Dwarvish', 'Elvish', 'Halfling', 'Orc', 'Infernal', 'Draconic', 'Gnomish', 'Sylvan', 'Celestial', 'Goblin', 'Undercommon'];
+const preferredEnemiesLang = {
+    'Aberration': ['Deep Speech', 'Undercommon'],
+    'Beast': ['—'],  // Most beasts don’t speak, though some rare magical beasts might
+    'Celestial': ['Celestial'],
+    'Construct': ['—'], // Constructs typically do not speak
+    'Dragon': ['Draconic'],
+    'Elemental': ['Auran', 'Ignan', 'Terran', 'Aquam'], // depends on element type
+    'Fey': ['Elvish', 'Sylvan'],
+    'Fiend': ['Abyssal', 'Infernal'],
+    'Giant': ['Giant'],
+    'Humanoid': ['Common', 'Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin', 'Halfling', 'Orc', 'Auran', 'Infernal'], // common humanoid languages
+    'Monstrosity': ['—'], // Usually do not speak
+    'Ooze': ['—'], // Non-intelligent
+    'Plant': ['—'], // Non-intelligent
+    'Undead': ['Common', 'Infernal', 'Undercommon']
+};
 const genders = ['Male', 'Female'];
 const personalities = {
     'Acolyte': ['I idolize a particular hero of my faith, and constantly refer to that person\'s deeds and example.', 'I can find common ground between the fiercest enemies, empathizing with them and always working towards piece.', 'I see omens in every event and action. The gods try to speak to us, we just need to listen.', 'Nothing can shake my optimistic attitude.', 'I quote (or misquote) sacred texts and proverbs in almost every situation.', 'I am tolerant (or intolerant) of other faiths and respect (or condemn) the worship of other gods.', 'I\'ve enjoyed fine food, drink, and high society among my temple\'s elite. Rough living grates on me.', 'I\'ve spent so long in the temple that I have little practical experience dealing with people in the outside world.'],
@@ -113,6 +129,7 @@ const artisansTools = ['Alchemist\'s Supplies', 'Brewer\'s Supplies', 'Calligrap
     'Cartographer\'s Tools', 'Cobler\'s Tools', 'Cook\'s Utensils', 'Glassblower\'s Tools', 'Jeweler\'s Tools',
     'Leatherworker\'s Tools', 'Mason\'s Tools', 'Painter\'s Supplies', 'Potter\'s Tools', 'Smith\'s Tools', 'Tinker\'s Tools',
     'Weaver\'s Tools', 'Woodcarver\'s Tools'];
+const charlatanTools = ['ten stoppered bottles filled with colored liquid', 'a set of weighted dice', 'a deck of marked cards', 'a signet ring of an imaginary duke'];
 const trinkets = [
     'A shard of obsidian that always feels warm to the touch',
     'A mummified goblin hand',
@@ -442,7 +459,7 @@ async function generateCharacter() {
 
     //function call
     const charName = getName(charRace, charGender);
-    const stats = getStats({ [race]: charSubrace });
+    const stats = getStats({ [charRace]: charSubrace });
     const statMods = {
         'STR': getMod(stats.STR),
         'DEX': getMod(stats.DEX),
@@ -459,7 +476,7 @@ async function generateCharacter() {
     const language = getLanguages(charRace, charClass, charBackground);
     const HP = getHealthPoints(charClass, statMods.CON);
     const hitDice = getHitDice(charClass);
-    const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX);
+    const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX, statMods.WIS, statMods.CON);
     const speed = getSpeed(charRace);
     const equipment = getEquipment(charClass, charBackground);
     const features = getFeatures(charRace, charSubrace, charClass);
@@ -468,34 +485,34 @@ async function generateCharacter() {
     const weight = getWeight(charRace);
     const spellClass = getSpellClass(charClass);
     const spellAbility = getSpellAbility(spellClass);
-    const spellDC = getSpellDifficultyClass(spellClass, statMods, spellAbility);
-    const spellAB = getSpellAttackBonus(spellClass, spellAbility);
+    const spellDC = getSpellDifficultyClass(spellClass, stats);
+    const spellAB = getSpellAttackBonus(spellClass, stats);
     const spells = getSpells(spellClass);
 
     let appearance = "", backstory = "";
-    try {
-        const appearancePrompt = race === "Dragonborn"
-            ? `Write a short character description for a ${gender} ${race} ${Class} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-            : `Write a short character description for a ${gender} ${race} ${Class} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+    //try {
+    //const appearancePrompt = charRace === "Dragonborn"
+    //    ? `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+    //    : `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
-        const appearanceRes = await client.chat.completions.create({
-            model: "gpt-4-turbo",
-            messages: [{ role: "user", content: appearancePrompt }],
-        });
+    //const appearanceRes = await client.chat.completions.create({
+    //    model: "gpt-4.1",
+    //    messages: [{ role: "user", content: appearancePrompt }],
+    //});
 
-        const backstoryRes = await client.chat.completions.create({
-            model: "gpt-4-turbo",
-            messages: [{
-                role: "user",
-                content: `Write a short character backstory for a ${gender} ${race} ${Class} who used to be a ${background} in DnD.`,
-            }],
-        });
-        appearance = appearanceRes.choices[0].message.content.trim();
-        backstory = backstoryRes.choices[0].message.content.trim();
-    } catch (error) {
-        console.error("Error generating character data:", error);
-        throw error;
-    }
+    //const backstoryRes = await client.chat.completions.create({
+    //    model: "gpt-4.1",
+    //    messages: [{
+    //        role: "user",
+    //        content: `Write a short character backstory for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD.`,
+    //    }],
+    //});
+    //appearance = appearanceRes.choices[0].message.content.trim();
+    //backstory = backstoryRes.choices[0].message.content.trim();
+    //} catch (error) {
+    //    console.error("Error generating character data:", error);
+    //    throw error;
+    //}
     return {
         NDC,
         charName,
@@ -755,6 +772,26 @@ function getStats(race) {
 function getSkillProficiencies(Class, background, race) {
     const skills = ['Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception', 'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine', 'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion', 'Sleight of Hand', 'Stealth', 'Survival'];
     let skillProficienciesTrue = [];
+    let skillsProficient = {
+        'Acrobatics': false,
+        'Animal Handling': false,
+        'Arcana': false,
+        'Athletics': false,
+        'Deception': false,
+        'History': false,
+        'Insight': false,
+        'Intimidation': false,
+        'Investigation': false,
+        'Medicine': false,
+        'Nature': false,
+        'Perception': false,
+        'Performance': false,
+        'Persuasion': false,
+        'Religion': false,
+        'Sleight of Hand': false,
+        'Stealth': false,
+        'Survival': false
+    };
     if (Class == 'Artificer') {
         const chose = ['Arcana', 'History', 'Investigation', 'Medicine', 'Nature', 'Perception', 'Sleight of Hand'];
         const choice1 = chose[Math.floor(Math.random() * chose.length)];
@@ -766,7 +803,7 @@ function getSkillProficiencies(Class, background, race) {
         const choice2 = chose.filter(skill => skill != choice1)[Math.floor(Math.random() * (chose.length - 1))];
         skillProficienciesTrue.push(choice1, choice2);
     } else if (Class == 'Bard') {
-        const choice1 = skills[Math.floor(Math.random() * chose.length)];
+        const choice1 = skills[Math.floor(Math.random() * skills.length)];
         const choice2 = skills.filter(skill => skill != choice1)[Math.floor(Math.random() * (skills.length - 1))];
         const choice3 = skills.filter(skill => skill != (choice1 || choice2))[Math.floor(Math.random() * (skills.length - 2))];
         skillProficienciesTrue.push(choice1, choice2, choice3);
@@ -826,152 +863,152 @@ function getSkillProficiencies(Class, background, race) {
     }
 
     if (background == 'Acolyte') {
-        if (skillProficiencies.includes('Insight' || 'Religion')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Insight' || 'Religion')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Insight' && 'Religion')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Insight' && 'Religion')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Insight', 'Religion');
         }
     } else if (background == 'Charlatan') {
-        if (skillProficiencies.includes('Deception' || 'Slight of Hand')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Deception' || 'Slight of Hand')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Deception' && 'Slight of Hand')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Deception' && 'Slight of Hand')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Deception', 'Slight of Hand');
         }
     } else if (background == 'Criminal') {
-        if (skillProficiencies.includes('Deception' || 'Stealth')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Deception' || 'Stealth')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Deception' && 'Stealth')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Deception' && 'Stealth')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Deception', 'Stealth');
         }
     } else if (background == 'Entertainer') {
-        if (skillProficiencies.includes('Acrobatics' || 'Performance')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Acrobatics' || 'Performance')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Acrobatics' && 'Performance')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Acrobatics' && 'Performance')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Acrobatics', 'Performance');
         }
     } else if (background == 'Folk Hero') {
-        if (skillProficiencies.includes('Animal Handling' || 'Survival')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Animal Handling' || 'Survival')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Animal Handling' && 'Survival')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Animal Handling' && 'Survival')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Animal Handling', 'Survival');
         }
     } else if (background == 'Guild Artisan') {
-        if (skillProficiencies.includes('Insight' || 'Persuasion')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Insight' || 'Persuasion')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Insight' && 'Persuasion')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Insight' && 'Persuasion')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Insight', 'Persuasion');
         }
     } else if (background == 'Hermit') {
-        if (skillProficiencies.includes('Medicine' || 'Religion')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Medicine' || 'Religion')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Medicine' && 'Religion')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Medicine' && 'Religion')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Medicine', 'Religion');
         }
     } else if (background == 'Noble') {
-        if (skillProficiencies.includes('History' || 'Persuasion')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('History' || 'Persuasion')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('History' && 'Persuasion')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('History' && 'Persuasion')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('History', 'Persuasion');
         }
     } else if (background == 'Outlander') {
-        if (skillProficiencies.includes('Athletics' || 'Survival')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Athletics' || 'Survival')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Athletics' && 'Survival')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Athletics' && 'Survival')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Athletics', 'Survival');
         }
     } else if (background == 'Sage') {
-        if (skillProficiencies.includes('Arcana' || 'History')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Arcana' || 'History')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Arcana' && 'History')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Arcana' && 'History')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Arcana', 'History');
         }
     } else if (background == 'Soldier') {
-        if (skillProficiencies.includes('Athletics' || 'Intimidation')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Athletics' || 'Intimidation')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Athletics' && 'Intimidation')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Athletics' && 'Intimidation')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Athletics', 'Intimidation');
         }
     } else if (background == 'Sailor') {
-        if (skillProficiencies.includes('Athletics' || 'Perception')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Athletics' || 'Perception')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Athletics' && 'Perception')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Athletics' && 'Perception')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Athletics', 'Perception');
         }
     } else if (background == 'Urchin') {
-        if (skillProficiencies.includes('Slight of Hand' || 'Stealth')) {
-            const skill = skills.filter(skill => skill != skillProficiencies)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
+        if (skillProficienciesTrue.includes('Slight of Hand' || 'Stealth')) {
+            const skill = skills.filter(skill => skill != skillProficienciesTrue)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
             skillProficienciesTrue.push(skill);
-        } else if (skillProficiencies.includes('Slight of Hand' && 'Stealth')) {
-            const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-            const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        } else if (skillProficienciesTrue.includes('Slight of Hand' && 'Stealth')) {
+            const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+            const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
             skillProficienciesTrue.push(skill1, skill2);
         } else {
             skillProficienciesTrue.push('Slight of Hand', 'Stealth');
         }
     }
     if (race == 'Half-Elf') {
-        const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
-        const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
+        const skill1 = skills.filter(skill => skillProficienciesTrue.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length))];
+        const skill2 = skills.filter(skill => (skillProficienciesTrue.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficienciesTrue.length - 1))];
         skillProficienciesTrue.push(skill1, skill2);
     }
 
@@ -983,6 +1020,7 @@ function getSkillProficiencies(Class, background, race) {
             skillsProficient[skillName] = false;
         }
     });
+    return skillsProficient;
 }
 function getSkillModifiers(modifiers, proficient) {
     const skills = {
@@ -1037,7 +1075,7 @@ function getSkillModifiers(modifiers, proficient) {
     return skillMods;
 }
 function getProficiencies(Class, background) {
-    let profs = '';
+    let profs = [];
     const classProfs = {
         'Barbarian': {
             armor: ['Light armor', 'Medium armor', 'Shields'],
@@ -1138,55 +1176,106 @@ function getProficiencies(Class, background) {
     const prof = profs.join(', ');
     return prof;
 }
-function getLanguages(background, Class, race) {
-    const race = race;
+function getLanguages(background, Class, race, subrace, subclass = null) {
     let languagesKnown = [];
-    let knownLanguages = {
+
+    // Base languages for races
+    const baseLanguages = {
         'Dwarf': ['Common', 'Dwarvish'],
-        'High Elf': ['Common', 'Elvish', languages.filter(lang => lang != 'Elvish')[Math.floor(Math.random() * (languages.length - 1))]],
-        'Wood Elf': ['Common', 'Elvish',],
-        'Dark Elf (Drow)': ['Common', 'Elvish'],
+        'Elf': ['Common', 'Elvish'],
         'Halfling': ['Common', 'Halfling'],
-        'Human': ['Common', languages[Math.floor(Math.random() * languages.length)]],
+        'Human': ['Common'],
         'Dragonborn': ['Common', 'Draconic'],
-        'Rock Gnome': ['Common', 'Gnomish'],
-        'Forest Gnome': ['Common', 'Gnomish'],
-        'Half-Elf': ['Common', 'Elvish', languages.filter(lang => lang != 'Elvish')[Math.floor(Math.random() * (languages.length - 1))]],
+        'Gnome': ['Common', 'Gnomish'],
+        'Half-Elf': ['Common', 'Elvish'],
         'Half-Orc': ['Common', 'Orc'],
         'Tiefling': ['Common', 'Infernal']
     };
-    languagesKnown.push(knownLanguages[race]);
 
+    // Subrace-specific languages
+    const subraceLanguages = {
+        'High Elf': ['Elvish', 'Extra'],
+        'Wood Elf': ['Elvish'],
+        'Dark Elf (Drow)': ['Elvish'],
+        'Rock Gnome': ['Gnomish'],
+        'Forest Gnome': ['Gnomish']
+    };
 
-    if (Class == 'Druid') {
+    // Helper function to get a random language not already known
+    function getRandomLanguage(exclude = []) {
+        const options = languages.filter(function(lang) {
+            return !languagesKnown.includes(lang) && !exclude.includes(lang);
+        });
+        if (options.length === 0) return null; // nothing left to pick
+        const randomIndex = Math.floor(Math.random() * options.length);
+        return options[randomIndex];
+    }
+
+    // Add race/subrace languages
+    if (subrace && subraceLanguages[subrace]) {
+        subraceLanguages[subrace].forEach(function(lang) {
+            if (lang === 'Extra') {
+                const randomLang = getRandomLanguage(['Elvish']);
+                if (randomLang) languagesKnown.push(randomLang);
+            } else {
+                languagesKnown.push(lang);
+            }
+        });
+    } else if (baseLanguages[race]) {
+        languagesKnown.push(...baseLanguages[race]);
+    }
+
+    // Class-specific languages
+    if (Class === 'Druid') {
         languagesKnown.push('Druidic');
-    } else if ((Class == 'Cleric' && subclasses.Cleric == 'Knowledge Domain' && level >= 1) || (Class == 'Rogue' && subclasses.Rogue == 'Mastermind' && level >= 3)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
-        const lang2 = languages.filter(lang => lang != knownLanguages.race || lang1)[Math.floor(Math.random() * (languages.length - 2))];
-        languagesKnown.push(lang1, lang2);
-    } else if (Class == 'Ranger' && level >= 1) {
-        const preferredEnemy = preferredEnemiesLang[Math.floor(Math.random() * Object.keys(preferredEnemiesLang).length)];
-        const lang1 = preferredEnemy.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * preferredEnemy.length)] || preferredEnemy;
-        languagesKnown.push(lang1);
-    } else if (Class == 'Monk' && level >= 13) {
-        languagesKnown.push(languages.filter(lang => lang != knownLanguages.race));
-    } else if (Class == 'Druid' && subclasses.Druid == 'Circle of the Shepherd') {
-        languagesKnown.push('Sylvan');
-    } else if (Class == 'Fighter' && subclasses.Fighter == 'Cavalier') {
-        languagesKnown.push(languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))]);
+        if (subclass === 'Circle of the Shepherd') {
+            languagesKnown.push('Sylvan');
+        }
+    } else if (Class === 'Cleric' && subclass === 'Knowledge Domain') {
+        const lang1 = getRandomLanguage();
+        const lang2 = getRandomLanguage([lang1]);
+        if (lang1) languagesKnown.push(lang1);
+        if (lang2) languagesKnown.push(lang2);
+    } else if (Class === 'Rogue' && subclass === 'Mastermind') {
+        const lang1 = getRandomLanguage();
+        const lang2 = getRandomLanguage([lang1]);
+        if (lang1) languagesKnown.push(lang1);
+        if (lang2) languagesKnown.push(lang2);
+    } else if (Class === 'Ranger') {
+        // Assume preferredEnemiesLang is an object mapping enemies to their languages
+        if (typeof preferredEnemiesLang !== 'undefined') {
+            const enemyKeys = Object.keys(preferredEnemiesLang);
+            const chosenEnemy = enemyKeys[Math.floor(Math.random() * enemyKeys.length)];
+            const enemyLangs = preferredEnemiesLang[chosenEnemy].filter(function(lang) {
+                return !languagesKnown.includes(lang);
+            });
+            if (enemyLangs.length > 0) languagesKnown.push(enemyLangs[Math.floor(Math.random() * enemyLangs.length)]);
+        }
+    } else if (Class === 'Monk') {
+        // Monks at high level can know all languages
+        languages.forEach(function(lang) {
+            if (!languagesKnown.includes(lang)) {
+                languagesKnown.push(lang);
+            }
+        });
+    } else if (Class === 'Fighter' && subclass === 'Cavalier') {
+        const lang = getRandomLanguage();
+        if (lang) languagesKnown.push(lang);
     }
 
+    // Background-specific languages
     if (['Acolyte', 'Sage'].includes(background)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
-        const lang2 = languages.filter(lang => lang != knownLanguages.race || lang1)[Math.floor(Math.random() * (languages.length - 2))];
-        languagesKnown.push(lang1, lang2);
+        const lang1 = getRandomLanguage();
+        const lang2 = getRandomLanguage([lang1]);
+        if (lang1) languagesKnown.push(lang1);
+        if (lang2) languagesKnown.push(lang2);
     } else if (['Guild Artisan', 'Hermit', 'Noble', 'Outlander'].includes(background)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
-        languagesKnown.push(lang1);
+        const lang = getRandomLanguage();
+        if (lang) languagesKnown.push(lang);
     }
 
-    const language = languages.join(', ');
-    return language;
+    // Return unique languages
+    return [...new Set(languagesKnown)];
 }
 function getHealthPoints(Class, conScore) {
     const classHitDie = {
@@ -1204,7 +1293,7 @@ function getHealthPoints(Class, conScore) {
         'Warlock': 8
     };
     const hitDie = classHitDie[Class] || 8;
-    return hitDie + getModifier(conScore);
+    return hitDie + conScore;
 }
 function getHitDice(Class) {
     const classHitDie = {
@@ -1271,7 +1360,7 @@ function getArmor(Class) {
         return armorC[Class];
     }
 }
-function getArmorClass(Class, armor, dexScore) {
+function getArmorClass(Class, armor, dexScore, wisScore, conScore) {
     let armorClass = 0;
     const armorTypes = {
         'padded': 11,
@@ -1289,12 +1378,12 @@ function getArmorClass(Class, armor, dexScore) {
         'shield': +2
     };
     if (Class == 'Monk') {
-        armorClass = 10 + getModifier(dexScore) + getModifier(stats.WIS);
+        armorClass = 10 + dexScore + wisScore;
     } else if (Class == 'Barbarian') {
-        armorClass = 10 + getModifier(dexScore) + getModifier(stats.CON);
+        armorClass = 10 + dexScore + conScore;
     } else {
         const armorBonus = armorTypes[armor] || 10;
-        armorClass = armorBonus + getModifier(dexScore);
+        armorClass = armorBonus + dexScore;
     }
     // Additional logic for armor can be added here
     return armorClass;
@@ -1341,7 +1430,7 @@ function getEquipment(Class, background) {
         'Urchin': 'A small knife, a map of the city you grew up in, a pet mouse, a token to remember your parents by, a set of common clothes, and a belt pouch containing 10 gp'
     };
 
-    equipment.push(backgroundEquipment[background]);
+    equipments.push(backgroundEquipment[background]);
 
 
     const classEquipmentA = {
@@ -1397,6 +1486,7 @@ function getEquipment(Class, background) {
 function getFeatures(race, subrace, Class) {
     let featuresArray = [];
     const draconicAncestry = ['Black', 'Blue', 'Brass', 'Bronze', 'Copper', 'Gold', 'Green', 'Red', 'Silver', 'White'];
+
     const raceFeatures = {
         'Dwarf': {
             'Hill Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Toughness',
@@ -1421,6 +1511,7 @@ function getFeatures(race, subrace, Class) {
         'Half-Orc': 'Darkvision, Menacing, Relentless Endurance, Savage Attacks',
         'Tiefling': 'Darkvision, Hellish Resistance, Infernal Legacy'
     };
+
     const classFeatures = {
         'Artificer': 'Magical Tinkering, Spellcasting',
         'Barbarian': 'Rage, Unarmored Defense',
@@ -1437,39 +1528,21 @@ function getFeatures(race, subrace, Class) {
         'Wizard': 'Spellcasting, Arcane Recovery',
     };
 
-    if (raceFeatures[race] == '') {
-        Object.keys(Class).forEach(Class => {
-            const featureC = classFeatures[Class];
-            featuresArray.push(featureC);
-        });
-    } else if (classFeatures[Class] == '') {
-        Object.keys(race).forEach(race => {
-            if (subrace === undefined) {
-                const featureR = raceFeatures[race]; //gets the race features
-                featuresArray.push(featureR);
-            } else {
-                const featureR = raceFeatures[race][subrace]; //gets the race features
-                featuresArray.push(featureR);
-            }
-        });
-    } else {
-        Object.keys(race).forEach(race => {
-            if (subrace === undefined) {
-                const featureR = raceFeatures[race]; //gets the race features
-                featuresArray.push(featureR);
-            } else {
-                const featureR = raceFeatures[race][subrace]; //gets the race features
-                featuresArray.push(featureR);
-            }
-        });
-        Object.keys(Class).forEach(Class => {
-            const featureC = classFeatures[Class];
-            featuresArray.push(featureC);
-        });
+    // Add race and subrace features
+    if (raceFeatures[race]) {
+        if (typeof raceFeatures[race] === 'string') {
+            featuresArray.push(raceFeatures[race]); // for races like Dragonborn, Half-Elf, etc.
+        } else if (subrace && raceFeatures[race][subrace]) {
+            featuresArray.push(raceFeatures[race][subrace]); // for races with subraces
+        }
     }
 
-    let features = featuresArray.join(", ");
-    return features;
+    // Add class features
+    if (classFeatures[Class]) {
+        featuresArray.push(classFeatures[Class]);
+    }
+
+    return featuresArray.join(", ");
 }
 function getAge(race) {
     const ranges = {
@@ -1508,13 +1581,13 @@ function getWeight(race) {
     const weights = {
         'Dwarf': '150 lb',
         'Elf': Math.floor(Math.random() * (145 - 90) + 90) + ' lb',
-        'Halfling': Math.floor(Math.random * (45 - 30) + 30) + ' lb',
+        'Halfling': Math.floor(Math.random * (45 - 35) + 35) + ' lb',
         'Human': Math.floor(Math.random * (250 - 125) + 125) + ' lb',
-        'Dragonborn': Math.floor(Math.random * (max - min) + min) + ' lb',
-        'Gnome': Math.floor(Math.random * (max - min) + min) + ' lb',
-        'Half-Elf': Math.floor(Math.random * (max - min) + min) + ' lb',
-        'Half-Orc': Math.floor(Math.random * (max - min) + min) + ' lb',
-        'Tiefling': Math.floor(Math.random * (max - min) + min) + ' lb'
+        'Dragonborn': Math.floor(Math.random * (360 - 175) + 175) + ' lb',
+        'Gnome': Math.floor(Math.random * (45 - 35) + 35) + ' lb',
+        'Half-Elf': Math.floor(Math.random * (180 - 100) + 100) + ' lb',
+        'Half-Orc': Math.floor(Math.random * (225 - 155) + 155) + ' lb',
+        'Tiefling': Math.floor(Math.random * (220 - 135) + 135) + ' lb'
     }
     return weights[race];
 }
@@ -1599,39 +1672,39 @@ function getSpellAbility(Class) {
     }
     return spellAbilities[Class];
 }
-function getSpellDifficultyClass(Class, mods, ability) {
+function getSpellDifficultyClass(Class, stats) {
     const DCs = {
-        'Artificer': 8 + mods[ability] + 2,
+        'Artificer': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
         'Barbarian': '',
-        'Bard': 8 + mods[ability] + 2,
-        'Cleric': 8 + mods[ability] + 2,
-        'Druid': 8 + mods[ability] + 2,
+        'Bard': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
+        'Cleric': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
+        'Druid': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
         'Fighter': '',
         'Monk': '',
-        'Paladin': 8 + mods[ability] + 2,
+        'Paladin': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
         'Ranger': '',
         'Rogue': '',
-        'Sorcerer': 8 + mods[ability] + 2,
-        'Warlock': 8 + mods[ability] + 2,
-        'Wizard': 8 + mods[ability] + 2
+        'Sorcerer': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
+        'Warlock': 8 + getMod(stats[getSpellAbility(Class)]) + 2,
+        'Wizard': 8 + getMod(stats[getSpellAbility(Class)]) + 2
     }
     return DCs[Class];
 }
-function getSpellAttackBonus(Class, mods, ability) {
+function getSpellAttackBonus(Class, stats) {
     const ABs = {
-        'Artificer': mods[ability] + 2,
+        'Artificer': getMod(stats[getSpellAbility(Class)]) + 2,
         'Barbarian': '',
-        'Bard': mods[ability] + 2,
-        'Cleric': mods[ability] + 2,
-        'Druid': mods[ability] + 2,
+        'Bard': getMod(stats[getSpellAbility(Class)]) + 2,
+        'Cleric': getMod(stats[getSpellAbility(Class)]) + 2,
+        'Druid': getMod(stats[getSpellAbility(Class)]) + 2,
         'Fighter': '',
         'Monk': '',
-        'Paladin': mods[ability] + 2,
+        'Paladin': getMod(stats[getSpellAbility(Class)]) + 2,
         'Ranger': '',
         'Rogue': '',
-        'Sorcerer': mods[ability] + 2,
-        'Warlock': mods[ability] + 2,
-        'Wizard': mods[ability] + 2
+        'Sorcerer': getMod(stats[getSpellAbility(Class)]) + 2,
+        'Warlock': getMod(stats[getSpellAbility(Class)]) + 2,
+        'Wizard': getMod(stats[getSpellAbility(Class)]) + 2
     }
     return ABs[Class];
 }

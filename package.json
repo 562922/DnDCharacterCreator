@@ -1,4 +1,15 @@
 {
+  "name": "dndcharactercreator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
     "openai": "^6.8.1"
