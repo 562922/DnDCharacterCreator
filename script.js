@@ -6,6 +6,15 @@ const client = new OpenAI({
 
 ///pg1
 //basic
+const profBonus = 2;
+const dificultyClasses = {
+    'Very easy': '5',
+    'Easy': '10',
+    'Medium': '15',
+    'Hard': '20',
+    'Very Hard': '25',
+    'Nearly Impossible': '30',
+};
 const classes = ['Artificer', 'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'];
 const subclasses = {
     'Artificer': ['Alchemist', 'Armorer', 'Artillerist', 'Battle Smith'],
@@ -247,21 +256,196 @@ const allies = ["a traveling bard", "a retired knight", "a temple cleric"];
 const organizations = ["The Harpers", "The Zhentarim", "Emerald Enclave"];
 
 //pg 3
-const allSpells = {};
-const spellClasses = {};
-const spellAbilities = {};
+const allSpells = {
+    'Artificer': {
+        'cantrips': ['Acid Splash',
+            'Booming Blade',
+            'Create Bonfire',
+            'Dancing Lights',
+            'Fire Bolt',
+            'Frostbite',
+            'Green-Flame Blade',
+            'Guidance',
+            'Light',
+            'Lightning Lure',
+            'Mage Hand',
+            'Magic Stone',
+            'Mending',
+            'Message',
+            'Poison Spray',
+            'Prestidigitation',
+            'Ray of Frost',
+            'Resistance',
+            'Shocking Grasp',
+            'Spare the Dying',
+            'Sword Burst',
+            'Thorn Whip',
+            'Thunderclap'],
+        'spells': ['Absorb Elements',
+            'Alarm',
+            'Catapult',
+            'Cure Wounds',
+            'Detect Magic',
+            'Disguise Self',
+            'Expeditious Retreat',
+            'Faerie Fire',
+            'False Life',
+            'Feather Fall',
+            'Grease',
+            'Identify',
+            'Jump',
+            'Longstrider',
+            'Purify Food and Drink',
+            'Sanctuary',
+            'Snare',
+            'Tasha\'s Caustic Brew']
+    },
+    'Barbarian': '',
+    'Bard': {
+        'cantrips': ['Blade Ward',
+            'Dancing Lights',
+            'Friends',
+            'Light',
+            'Mage Hand',
+            'Mending',
+            'Message',
+            'Minor Illusion',
+            'Prestidigitation',
+            'Starry Wisp',
+            'Thunderclap',
+            'True Strike',
+            'Vicious Mockery'],
+        'spells': [
+            'Animal Friendship',
+            'Bane',
+            'Charm Person',
+            'Color Spray',
+            'Command',
+            'Comprehend Languages',
+            'Cure Wounds',
+            'Detect Magic',
+            'Disguise Self',
+            'Dissonant Whispers',
+            'Distort Value',
+            'Earth Tremor',
+            'Faerie Fire',
+            'Feather Fall',
+            'Healing Word',
+            'Heroism',
+            'Identify',
+            'Illusory Script',
+            'Longstrider',
+            'Silent Image',
+            'Silvery Barbs',
+            'Sleep',
+            'Speak with Animals',
+            "Tasha's Hideous Laughter",
+            'Thunderwave',
+            'Unseen Servant',
+            'Wardaway']
+    },
+    'Cleric': {
+        'cantrips': [
+            'Guidance', 'Light', 'Mending', 'Resistance', 'Sacred Flame', 'Spare the Dying',
+            'Thaumaturgy'
+        ],
+        'spells': [
+            'Bane', 'Bless', 'Command', 'Create or Destroy Water', 'Cure Wounds',
+            'Detect Evil and Good', 'Detect Magic', 'Detect Poison and Disease',
+            'Guiding Bolt', 'Healing Word', 'Inflict Wounds', 'Protection from Evil and Good',
+            'Purify Food and Drink', 'Sanctuary', 'Shield of Faith'
+        ]
+    },
+    'Druid': {
+        'cantrips': [
+            'Druidcraft', 'Guidance', 'Mending', 'Poison Spray', 'Produce Flame', 'Resistance',
+            'Shillelagh', 'Thorn Whip'
+        ],
+        'spells': [
+            'Animal Friendship', 'Charm Person', 'Create or Destroy Water', 'Cure Wounds',
+            'Detect Magic', 'Detect Poison and Disease', 'Entangle', 'Faerie Fire',
+            'Fog Cloud', 'Goodberry', 'Healing Word', 'Jump', 'Longstrider', 'Purify Food and Drink',
+            'Speak with Animals'
+        ]
+    },
+    'Fighter': '',  // Eldritch Knight subclass only (starts at level 3)
+    'Monk': '',     // Spellcasting via subclasses only (Way of Four Elements, etc.)
+    'Paladin': {
+        'cantrips': [],
+        'spells': [
+            'Bless', 'Command', 'Compelled Duel', 'Cure Wounds', 'Detect Evil and Good',
+            'Detect Magic', 'Detect Poison and Disease', 'Divine Favor', 'Heroism',
+            'Protection from Evil and Good', 'Purify Food and Drink', 'Searing Smite',
+            'Shield of Faith', 'Thunderous Smite', 'Wrathful Smite'
+        ]
+    },
+    'Ranger': '',   // Spellcasting begins at level 2
+    'Rogue': '',    // Spellcasting via Arcane Trickster (level 3)
+    'Sorcerer': {
+        'cantrips': [
+            'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Fire Bolt',
+            'Light', 'Mage Hand', 'Mending', 'Message', 'Minor Illusion', 'Poison Spray',
+            'Prestidigitation', 'Ray of Frost', 'Shocking Grasp'
+        ],
+        'spells': [
+            'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Comprehend Languages',
+            'Detect Magic', 'Disguise Self', 'Expeditious Retreat', 'False Life', 'Feather Fall',
+            'Fog Cloud', 'Jump', 'Mage Armor', 'Magic Missile', 'Shield', 'Silent Image',
+            'Sleep', 'Thunderwave'
+        ]
+    },
+    'Warlock': {
+        'cantrips': [
+            'Blade Ward', 'Chill Touch', 'Eldritch Blast', 'Friends', 'Mage Hand',
+            'Minor Illusion', 'Prestidigitation', 'True Strike'
+        ],
+        'spells': [
+            'Armor of Agathys', 'Arms of Hadar', 'Charm Person', 'Comprehend Languages',
+            'Expeditious Retreat', 'Hellish Rebuke', 'Hex', 'Illusory Script', 'Protection from Evil and Good',
+            'Unseen Servant', 'Witch Bolt'
+        ]
+    },
+    'Wizard': {
+        'cantrips': [
+            'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Fire Bolt',
+            'Light', 'Mage Hand', 'Mending', 'Message', 'Minor Illusion', 'Poison Spray',
+            'Prestidigitation', 'Ray of Frost', 'Shocking Grasp', 'True Strike'
+        ],
+        'spells': [
+            'Alarm', 'Burning Hands', 'Charm Person', 'Chromatic Orb', 'Color Spray', 'Comprehend Languages',
+            'Detect Magic', 'Disguise Self', 'Expeditious Retreat', 'False Life', 'Feather Fall', 'Find Familiar',
+            'Fog Cloud', 'Grease', 'Identify', 'Jump', 'Longstrider', 'Mage Armor', 'Magic Missile',
+            'Protection from Evil and Good', 'Shield', 'Silent Image', 'Sleep', 'Tasha\'s Hideous Laughter',
+            'Tenser\'s Floating Disk', 'Thunderwave', 'Unseen Servant'
+        ]
+    }
+};
 
 //main
 async function generateCharacter() {
-    stats = {
-        'STR': rollStat(),
-        'DEX': rollStat(),
-        'CON': rollStat(),
-        'INT': rollStat(),
-        'WIS': rollStat(),
-        'CHA': rollStat()
-    }
-    statMods = {
+    //simple
+    const race = randomValue(races);
+    const gender = randomValue(genders);
+    const DC = dificultyClasses['Medium']; // or pick randomly from Object.keys(dificultyClasses)
+    const charClass = randomValue(classes);
+    const subclass = randomValue(subclasses[charClass]);
+    const subrace = subraces[race] ? randomValue(subraces[race]) : null;
+    const background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    const alignment = alignments[Math.floor(Math.random() * alignments.length)];
+    const personality = personalities[background][Math.floor(Math.random() * personalities[background].length)];
+    const ideal = ideals[background][Math.floor(Math.random() * ideals[background].length)];;
+    const bond = bonds[background][Math.floor(Math.random() * bonds[background].length)];;
+    const flaw = flaws[background][Math.floor(Math.random() * flaws[background].length)];;
+    const eye = eyes[race]?.[Math.floor(Math.random() * eyes[race].length)] || "brown";
+    const skin = skins[race]?.[Math.floor(Math.random() * skins[race].length)] || "tan";
+    const hair = hairs[race]?.length ? randomValue(hairs[race]) : "no hair";
+    const ally = allies[Math.floor(Math.random() * allies.length)];
+    const organization = organizations[Math.floor(Math.random() * organizations.length)];
+
+    //function call
+    const charName = getName(race, gender);
+    const stats = getStats(race);
+    const statMods = {
         'STR': getMod(stats.STR),
         'DEX': getMod(stats.DEX),
         'CON': getMod(stats.CON),
@@ -269,17 +453,7 @@ async function generateCharacter() {
         'WIS': getMod(stats.WIS),
         'CHA': getMod(stats.CHA)
     };
-
-    //simple
-    const charName = getName(race, gender);
-    const charClass = classes[Math.floor(Math.random() * classes.length)];
-    const subclass = subclasses[charClass][Math.floor(Math.random() * subclasses[charClass].length)];
-    const race = races[Math.floor(Math.random() * races.length)];
-    const subrace = subraces[race][Math.floor(Math.random() * subraces[race].length)];
-    const background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-    const alignment = alignments[Math.floor(Math.random() * alignments.length)];
-    const gender = genders[Math.floor(Math.random() * genders.length)];
-    stats = getStats(race);
+    const initiative = statMods.DEX;
     const skillProficiencies = getSkillProficiencies(charClass, background, race);
     const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
     const passivePerception = skillModifiers['Perception'];
@@ -289,28 +463,15 @@ async function generateCharacter() {
     const hitDice = getHitDice(charClass);
     const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX);
     const speed = getSpeed(race);
-    const initiative = statMods.DEX;
     const equipment = getEquipment(charClass, background);
-    const personality = personalities[background][Math.floor(Math.random() * personalities[background].length)];
-    const ideal = ideals[background][Math.floor(Math.random() * ideals[background].length)];;
-    const bond = bonds[background][Math.floor(Math.random() * bonds[background].length)];;
-    const flaw = flaws[background][Math.floor(Math.random() * flaws[background].length)];;
-    const features = getFeatures(race, charClass);
-
-    //pg 2
+    const features = getFeatures(race, subrace, charClass);
     const age = getAge(race);
     const height = getHeight(race);
     const weight = getWeight(race);
-    const eye = eyes[race]?.[Math.floor(Math.random() * eyes[race].length)] || "brown";
-    const skin = skins[race]?.[Math.floor(Math.random() * skins[race].length)] || "tan";
-    const hair = hairs[race]?.length ? randomValue(hairs[race]) : "no hair";
-    const ally = allies[Math.floor(Math.random() * allies.length)];
-    const organization = organizations[Math.floor(Math.random() * organizations.length)];
-    //pg 3
     const spellClass = getSpellClass(charClass);
     const spellAbility = getSpellAbility(spellClass);
-    const spellDC = getSpellDifficultyClass(spellClass);
-    const spellAB = getSpellAttackBonus(spellClass);
+    const spellDC = getSpellDifficultyClass(spellClass, spellAbility);
+    const spellAB = getSpellAttackBonus(spellClass, spellAbility);
     const spells = getSpells(spellClass);
 
     try {
@@ -319,12 +480,12 @@ async function generateCharacter() {
             : `Write a short character description for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
         const appearanceRes = await client.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-4-turbo",
             messages: [{ role: "user", content: appearancePrompt }],
         });
 
         const backstoryRes = await client.chat.completions.create({
-            model: "gpt-5",
+            model: "gpt-4-turbo",
             messages: [{
                 role: "user",
                 content: `Write a short character backstory for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD.`,
@@ -338,6 +499,7 @@ async function generateCharacter() {
     }
     return {
         //pg 1    
+        DC,
         charName,
         charClass,
         subclass,
@@ -384,11 +546,15 @@ async function generateCharacter() {
     }
 }
 
+function randomValue(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
 //functions!!!//
 function rollStat() {
     let rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
     rolls.sort((a, b) => b - a);
-    return ('+' + rolls.slice(0, 3).reduce((a, b) => a + b));
+    return rolls.slice(0, 3).reduce((a, b) => a + b);
 }
 function getMod(stat) {
     return Math.round((stat - 10) / 2);
@@ -479,27 +645,50 @@ function getName(race, gender) {
         }
     };
 
-    if (race == 'Human') {
-        name = names[race][Math.floor(Math.random() * names[race].length)][gender][Math.floor(Math.random() * names[race][Math.floor(Math.random() * names[race].length)][gender].length)] + ' ' + names[race][Math.floor(Math.random() * names[race].length)]['Surname'][Math.floor(Math.random() * names[race][Math.floor(Math.random() * names[race].length)]['Surname'].length)];
-    } else if (race == 'Gnome') {
-        name = names[race][gender][Math.floor(Math.random() * names[race][gender].length)] + ' (' + names[race]['Nickname'][Math.floor(Math.random() * names[race]['Nickname'].length)] + ') ' + names[race]['Family'][Math.floor(Math.random() * names[race]['Family'].length)];
-    } else if (race == 'Half-Elf') {
-        const nameConv = Math.random();
-        if (nameConv < 0.5) {
-            name = names['Elf'][gender][Math.floor(Math.random() * names['Elf'][gender].length)] + ' ' + names['Elf']['Family'][Math.floor(Math.random() * names['Elf']['Family'].length)];
+    if (race === 'Human') {
+        const cultures = Object.keys(names['Human']);
+        const culture = randomValue(cultures);
+        const first = randomValue(names['Human'][culture][gender]);
+        const last = randomValue(names['Human'][culture].Surname);
+        name = `${first} ${last}`;
+    } else if (race === 'Gnome') {
+        const first = randomValue(names['Gnome'][gender]);
+        const nick = randomValue(names['Gnome'].Nicknames);
+        const fam = randomValue(names['Gnome'].Family);
+        name = `${first} (${nick}) ${fam}`;
+    } else if (race === 'Half-Elf') {
+        // choose either Elf-like or Human-like
+        if (Math.random() < 0.5) {
+            const first = randomValue(names['Elf'][gender]);
+            const fam = randomValue(names['Elf'].Family);
+            name = `${first} ${fam}`;
         } else {
-            name = names['Human'][Math.floor(Math.random() * names['Human'].length)][gender][Math.floor(Math.random() * names['Human'][Math.floor(Math.random() * names['Human'].length)][gender].length)] + ' ' + names['Human'][Math.floor(Math.random() * names['Human'].length)]['Surname'][Math.floor(Math.random() * names['Human'][Math.floor(Math.random() * names['Human'].length)]['Surname'].length)];
+            const cultures = Object.keys(names['Human']);
+            const culture = randomValue(cultures);
+            const first = randomValue(names['Human'][culture][gender]);
+            const last = randomValue(names['Human'][culture].Surname);
+            name = `${first} ${last}`;
         }
     } else {
-        if (names[race]['Family'] === undefined) {
-            name = names[race][gender][Math.floor(Math.random() * names[race][gender].length)];
+        if (!names[race]) {
+            name = `${race}ling`;
         } else {
-            name = names[race][gender][Math.floor(Math.random() * names[race][gender].length)] + ' ' + names[race]['Family'][Math.floor(Math.random() * names[race]['Family'].length)];
+            const first = randomValue(names[race][gender] || names[race].Male || names[race].Female);
+            const fam = randomValue(names[race].Family || []);
+            name = fam ? `${first} ${fam}` : first;
         }
-        return name;
-    };
+    }
+    return name;
 }
 function getStats(race) {
+    let stats = {
+        STR: rollStat(),
+        DEX: rollStat(),
+        CON: rollStat(),
+        INT: rollStat(),
+        WIS: rollStat(),
+        CHA: rollStat(),
+    }
     // Handle standard races (strings)
     if (race === 'Dragonborn') {
         stats.STR += 2;
@@ -820,12 +1009,9 @@ function getSkillModifiers(modifiers, skillsProficient) {
         'Stealth': 'DEX',
         'Survival': 'STR'
     }
-    let proficiencyBonus = 2;
-
     Object.keys(skills).forEach(skillName => {
         const ability = skills[skillName]; // e.g. 'DEX' for Acrobatics
         const baseMod = modifiers[ability]; // e.g. modifiers.DEX
-        const profBonus = skillsProficient[skillName] ? proficiencyBonus : 0;
         skillMod[skillName] = baseMod + profBonus;
     });
 }
@@ -969,11 +1155,11 @@ function getLanguages(background, charClass, race) {
         languagesKnown.push(languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))]);
     }
 
-    if (background == 'Acolyte' || 'Sage') {
+    if (['Acolyte', 'Sage'].includes(background)) {
         const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
         const lang2 = languages.filter(lang => lang != knownLanguages.race || lang1)[Math.floor(Math.random() * (languages.length - 2))];
         languagesKnown.push(lang1, lang2);
-    } else if (background == 'Guild Artisan' || 'Hermit' || 'Noble' || 'Outlander') {
+    } else if (['Guild Artisan', 'Hermit', 'Noble', 'Outlander'].includes(background)) {
         const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
         languagesKnown.push(lang1);
     }
@@ -1187,27 +1373,35 @@ function getEquipment(charClass, background) {
     const equipment = equipments.join(', ');
     return equipment;
 }
-function getFeatures(race, charClass) {
+function getFeatures(race, subrace, charClass) {
     let featuresArray = [];
     const draconicAncestry = ['Black', 'Blue', 'Brass', 'Bronze', 'Copper', 'Gold', 'Green', 'Red', 'Silver', 'White'];
     const raceFeatures = {
-        'Hill Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Toughness',
-        'Mountain Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Armor Training',
-        'High Elf': 'Darkvision, Keen Senses, Fey Ancestry, Trance, Elf Weapon Training',
-        'Wood Elf': 'Darkvision, Keen Senses, Fey Ancestry, Trance, Elf Weapon Training, Mask of the Wild',
-        'Dark Elf (Drow)': 'Superior Darkvision, Keen Senses, Fey Ancestry, Trance, Sunlight Sensitivity, Drow Magic, Drow Weapon Training',
-        'Lightfoot Halfling': 'Lucky, Brave, Halfling Nimbleness, Naturally Stealthy',
-        'Stout Halfling': 'Lucky, Brave, Halfling Nimbleness, Stout Resilience',
+        'Dwarf': {
+            'Hill Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Toughness',
+            'Mountain Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Armor Training'
+        },
+        'Elf': {
+            'High Elf': 'Darkvision, Keen Senses, Fey Ancestry, Trance, Elf Weapon Training',
+            'Wood Elf': 'Darkvision, Keen Senses, Fey Ancestry, Trance, Elf Weapon Training, Mask of the Wild',
+            'Dark Elf (Drow)': 'Superior Darkvision, Keen Senses, Fey Ancestry, Trance, Sunlight Sensitivity, Drow Magic, Drow Weapon Training'
+        },
+        'Halfling': {
+            'Lightfoot Halfling': 'Lucky, Brave, Halfling Nimbleness, Naturally Stealthy',
+            'Stout Halfling': 'Lucky, Brave, Halfling Nimbleness, Stout Resilience',
+        },
         'Human': '',
-        'Dragonbonr': 'Draconic Ancestry (' + draconicAncestry[Math.floor(Math.random() * draconicAncestry.length)] + '), Breath Weapon, Damage Resistance',
-        'Forest Gnome': 'Darkvision, Gnome Cunning, Natural Illusionist, Speak with Small Beasts',
-        'Rock Gnome': 'Darkvision, Gnome Cunning, Artificer\'s Lore, Tinker',
+        'Dragonborn': 'Draconic Ancestry (' + draconicAncestry[Math.floor(Math.random() * draconicAncestry.length)] + '), Breath Weapon, Damage Resistance',
+        'Gnome': {
+            'Forest Gnome': 'Darkvision, Gnome Cunning, Natural Illusionist, Speak with Small Beasts',
+            'Rock Gnome': 'Darkvision, Gnome Cunning, Artificer\'s Lore, Tinker',
+        },
         'Half-Elf': 'Darkvision, Fey Ancestry',
         'Half-Orc': 'Darkvision, Menacing, Relentless Endurance, Savage Attacks',
         'Tiefling': 'Darkvision, Hellish Resistance, Infernal Legacy'
     };
     const classFeatures = {
-        'Artificer': '',
+        'Artificer': 'Magical Tinkering, Spellcasting',
         'Barbarian': 'Rage, Unarmored Defense',
         'Bard': 'Spellcasting, Bardic Inspiration (d6)',
         'Cleric': 'Spell Casting, Devine Domain',
@@ -1229,13 +1423,23 @@ function getFeatures(race, charClass) {
         });
     } else if (classFeatures[charClass] == '') {
         Object.keys(race).forEach(race => {
-            const featureR = raceFeatures[race]; //gets the race features
-            featuresArray.push(featureR);
+            if (subrace === undefined) {
+                const featureR = raceFeatures[race]; //gets the race features
+                featuresArray.push(featureR);
+            } else {
+                const featureR = raceFeatures[race][subrace]; //gets the race features
+                featuresArray.push(featureR);
+            }
         });
     } else {
         Object.keys(race).forEach(race => {
-            const featureR = raceFeatures[race]; //gets the race features
-            featuresArray.push(featureR);
+            if (subrace === undefined) {
+                const featureR = raceFeatures[race]; //gets the race features
+                featuresArray.push(featureR);
+            } else {
+                const featureR = raceFeatures[race][subrace]; //gets the race features
+                featuresArray.push(featureR);
+            }
         });
         Object.keys(charClass).forEach(charClass => {
             const featureC = classFeatures[charClass];
@@ -1293,3 +1497,122 @@ function getWeight(race) {
     }
     return weights[race];
 }
+function getSpells(charClass) {
+    let spells = {
+        'cantrips': [],
+        'spells': []
+    }
+    if (['Warlock', 'Ranger', 'Druid', 'Artificer'].includes(charClass)) {
+        const cantrip1 = allSpells[charClass]['cantrips'][Math.floor(Math.random() * allSpells[charClass]['cantrips'].length)];
+        const cantrip2 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 1))];
+        const spell1 = allSpells[charClass]['spells'][Math.floor(Math.random() * allSpells[charClass]['spells'].length)];
+        const spell2 = allSpells[charClass]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[charClass]['spells'].length - 1))];
+
+        spells['cantrips'].push(cantrip1, cantrip2);
+        spells['spells'].push(spell1, spell2);
+    } else if (charClass == ('Wizard' || 'Cleric')) {
+        const cantrip1 = allSpells[charClass]['cantrips'][Math.floor(Math.random() * allSpells[charClass]['cantrips'].length)];
+        const cantrip2 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 1))];
+        const cantrip3 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != (cantrip1 || cantrip2))[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 2))];
+        const spell1 = allSpells[charClass]['spells'][Math.floor(Math.random() * allSpells[charClass]['spells'].length)];
+        const spell2 = allSpells[charClass]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[charClass]['spells'].length - 1))];
+
+        spells['cantrips'].push(cantrip1, cantrip2, cantrip3);
+        spells['spells'].push(spell1, spell2);
+    } else if (charClass == ('Sorcerer')) {
+        const cantrip1 = allSpells[charClass]['cantrips'][Math.floor(Math.random() * allSpells[charClass]['cantrips'].length)];
+        const cantrip2 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 1))];
+        const cantrip3 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != (cantrip1 || cantrip2))[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 2))];
+        const cantrip4 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != (cantrip1 || cantrip2 || cantrip3))[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 3))]
+        const spell1 = allSpells[charClass]['spells'][Math.floor(Math.random() * allSpells[charClass]['spells'].length)];
+        const spell2 = allSpells[charClass]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[charClass]['spells'].length - 1))];
+
+        spells['cantrips'].push(cantrip1, cantrip2, cantrip3, cantrip4);
+        spells['spells'].push(spell1, spell2);
+    } else if (charClass == 'Bard') {
+        const cantrip1 = allSpells[charClass]['cantrips'][Math.floor(Math.random() * allSpells[charClass]['cantrips'].length)];
+        const cantrip2 = allSpells[charClass]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[charClass]['cantrips'].length - 1))];
+        const spell1 = allSpells[charClass]['spells'][Math.floor(Math.random() * allSpells[charClass]['spells'].length)];
+        const spell2 = allSpells[charClass]['spells'].filter(cantrip => cantrip != spell1)[Math.floor(Math.random() * (allSpells[charClass]['spells'].length - 1))]
+        const spell3 = allSpells[charClass]['spells'].filter(spell => spell != (spell1 || spell2))[Math.floor(Math.random() * (allSpells[charClass]['spells'].lengt - 2))];
+        const spell4 = allSpells[charClass]['spells'].filter(spell => spell != (spell1 || spell2 || spell3))[Math.floor(Math.random() * (allSpells[charClass]['spells'].length - 3))];
+
+        spells['cantrips'].push(cantrip1, cantrip2);
+        spells['spells'].push(spell1, spell2, spell3, spell4);
+    }
+    return spells;
+}
+function getSpellClass(charClass) {
+    const spellClasses = {
+        'Artificer': 'Artificer',
+        'Barbarian': '',
+        'Bard': 'Bard',
+        'Cleric': 'Cleric',
+        'Druid': 'Druid',
+        'Fighter': '',
+        'Monk': '',
+        'Paladin': '',
+        'Ranger': '',
+        'Rogue': '',
+        'Sorcerer': 'Sorcerer',
+        'Warlock': 'Warlock',
+        'Wizard': 'Wizard'
+    }
+    return spellClasses[charClass]
+}
+function getSpellAbility(charClass) {
+    const spellAbilities = {
+        'Artificer': 'INT',
+        'Barbarian': '',
+        'Bard': 'CHA',
+        'Cleric': 'WIS',
+        'Druid': 'WIS',
+        'Fighter': '',
+        'Monk': '',
+        'Paladin': '',
+        'Ranger': '',
+        'Rogue': '',
+        'Sorcerer': 'CHA',
+        'Warlock': 'CHA',
+        'Wizard': 'INT'
+    }
+    return spellAbilities[charClass];
+}
+function getSpellDifficultyClass(charClass, spellAbility) {
+    const DCs = {
+        'Artificer': 8 + statMods[spellAbility] + 2,
+        'Barbarian': '',
+        'Bard': 8 + statMods[spellAbility] + 2,
+        'Cleric': 8 + statMods[spellAbility] + 2,
+        'Druid': 8 + statMods[spellAbility] + 2,
+        'Fighter': '',
+        'Monk': '',
+        'Paladin': 8 + statMods[spellAbility] + 2,
+        'Ranger': '',
+        'Rogue': '',
+        'Sorcerer': 8 + statMods[spellAbility] + 2,
+        'Warlock': 8 + statMods[spellAbility] + 2,
+        'Wizard': 8 + statMods[spellAbility] + 2
+    }
+    return DCs[charClass];
+}
+function getSpellAttackBonus(charClass, spellAbility) {
+    const ABs = {
+        'Artificer': statMods[spellAbility] + 2,
+        'Barbarian': '',
+        'Bard': statMods[spellAbility] + 2,
+        'Cleric': statMods[spellAbility] + 2,
+        'Druid': statMods[spellAbility] + 2,
+        'Fighter': '',
+        'Monk': '',
+        'Paladin': statMods[spellAbility] + 2,
+        'Ranger': '',
+        'Rogue': '',
+        'Sorcerer': statMods[spellAbility] + 2,
+        'Warlock': statMods[spellAbility] + 2,
+        'Wizard': statMods[spellAbility] + 2
+    }
+    return ABs[charClass];
+}
+
+generateCharacter().then(console.log);
