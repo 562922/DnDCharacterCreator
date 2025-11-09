@@ -490,29 +490,29 @@ async function generateCharacter() {
     const spells = getSpells(spellClass);
 
     let appearance = "", backstory = "";
-    //try {
-    //const appearancePrompt = charRace === "Dragonborn"
-    //    ? `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-    //    : `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+    try {
+    const appearancePrompt = charRace === "Dragonborn"
+        ? `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+        : `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
-    //const appearanceRes = await client.chat.completions.create({
-    //    model: "gpt-4.1",
-    //    messages: [{ role: "user", content: appearancePrompt }],
-    //});
+    const appearanceRes = await client.chat.completions.create({
+        model: "gpt-4.1",
+        messages: [{ role: "user", content: appearancePrompt }],
+    });
 
-    //const backstoryRes = await client.chat.completions.create({
-    //    model: "gpt-4.1",
-    //    messages: [{
-    //        role: "user",
-    //        content: `Write a short character backstory for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD.`,
-    //    }],
-    //});
-    //appearance = appearanceRes.choices[0].message.content.trim();
-    //backstory = backstoryRes.choices[0].message.content.trim();
-    //} catch (error) {
-    //    console.error("Error generating character data:", error);
-    //    throw error;
-    //}
+    const backstoryRes = await client.chat.completions.create({
+        model: "gpt-4.1",
+        messages: [{
+            role: "user",
+            content: `Write a short character backstory for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD.`,
+        }],
+    });
+    appearance = appearanceRes.choices[0].message.content.trim();
+    backstory = backstoryRes.choices[0].message.content.trim();
+    } catch (error) {
+        console.error("Error generating character data:", error);
+        throw error;
+    }
     return {
         NDC,
         charName,
