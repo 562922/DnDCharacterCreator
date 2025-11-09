@@ -1,11 +1,10 @@
 //OpenAI
 import OpenAI from "openai";
+import 'dotenv/config';
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-
-///pg1
-//basic
+//consts
 const profBonus = 2;
 const dificultyClasses = {
     'Very easy': '5',
@@ -36,14 +35,17 @@ const subraces = {
     'Dwarf': ['Hill Dwarf', 'Mountain Dwarf'],
     'Elf': ['High Elf', 'Wood Elf', 'Dark Elf (Drow)'],
     'Halfling': ['Lightfoot Halfling', 'Stout Halfling'],
+    'Human': [],
     'Gnome': ['Forest Gnome', 'Rock Gnome'],
+    'Dragonborn': [],
+    'Half-Elf': [],
+    'Half-Orc': [],
+    'Tiefling': []
 };
 const alignments = ["Lawful Good", "Neutral Good", "Chaotic Good", "Lawful Neutral", "True Neutral", "Chaotic Neutral", "Lawful Evil", "Neutral Evil", "Chaotic Evil"];
 const backgrounds = ['Acolyte', 'Charlatan', 'Criminal', 'Entertainer', 'Folk Hero', 'Guild Artisan', 'Hermit', 'Noble', 'Outlander', 'Sage', 'Sailor', 'Soldier', 'Urchin'];
 const languages = ['Dwarvish', 'Elvish', 'Giant', 'Gnomish', 'Goblin', 'Halfling', 'Orc', 'Abyssal', 'Celestial', 'Draconic', 'Deep Speech', 'Infernal', 'Primordial', 'Sylvan', 'Undercommon'];
 const genders = ['Male', 'Female'];
-
-//personality traits
 const personalities = {
     'Acolyte': ['I idolize a particular hero of my faith, and constantly refer to that person\'s deeds and example.', 'I can find common ground between the fiercest enemies, empathizing with them and always working towards piece.', 'I see omens in every event and action. The gods try to speak to us, we just need to listen.', 'Nothing can shake my optimistic attitude.', 'I quote (or misquote) sacred texts and proverbs in almost every situation.', 'I am tolerant (or intolerant) of other faiths and respect (or condemn) the worship of other gods.', 'I\'ve enjoyed fine food, drink, and high society among my temple\'s elite. Rough living grates on me.', 'I\'ve spent so long in the temple that I have little practical experience dealing with people in the outside world.'],
     'Charlatan': ['I fall in and out of love easily, and am always pursuing someone.', 'I have a joke for every occasion, especially occasions where humor is inappropriate.', 'Flattery is my preferred trick for getting what I want.', 'I\'m a born gambler who can\'t resist taking a risk for a potential payoff.', 'I lie about almost everything, even when there\'s no good reason to.', 'Sarcasm and insults are my weapons of choice.', 'I keep multiple holy symbols on me and invoke whatever deity might come in useful at any given moment.', 'I pocket anything I see that might have some value.'],
@@ -104,11 +106,9 @@ const flaws = {
     'Soldier': ['The monstrous enemy we faced in battle still leaves me quivering with fear.', 'I have little respect for anyone who is not a proven warrior.', 'I made a terrible mistake in battle that cost many lives—and I would do anything to keep that mistake secret.', 'My hatred of my enemies is blind and unreasoning.', 'I obey the law, even if the law causes misery.', 'I\'d rather eat my armor than admit when I\'m wrong.'],
     'Urchin': ['If I\'m outnumbered, I will run away from a fight.', 'Gold seems like a lot of money to me, and I\'ll do just about anything for more of it.', 'I will never fully trust anyone other than myself.', 'I\'d rather kill someone in their sleep than fight fair.', 'It\'s not stealing if I need it more than someone else.', 'People who can\'t take care of themselves get what they deserve.']
 };
-//armor and weapons
 const simpleWeapons = ['Club', 'Dagger', 'Greatclub', 'Handaxe', 'Javelin', 'Light Hammer', 'Mace', 'Quarterstaff', 'Sickle', 'Spear', 'Unarmed Strike', 'Light Crossbow', 'Shortbow', 'Dart', 'Sling'];
 const martialWeapons = ['Battleaxe', 'Flail', 'Glave', 'Greataxe', 'Greatsword', 'Halberd', 'Lance', 'Longsword', 'Maul', 'Morningstar', 'Pike', 'Rapier', 'Scimitar', 'Shortsword', 'Trident', 'War Pick', 'Warhammer', 'Whip', 'Blowgun', 'Hand Crossbow', 'Heavy Crossbow', 'Longbow', 'Net'];
 const simpleMelees = ['Club', 'Dagger', 'Greatclub', 'Handaxe', 'Javelin', 'Light Hammer', 'Mace', 'Quarterstaff', 'Sickle', 'Spear', 'Unarmed Strike'];
-//tools
 const artisansTools = ['Alchemist\'s Supplies', 'Brewer\'s Supplies', 'Calligrapher\'s Supplies', 'Carpenter\'s Tools',
     'Cartographer\'s Tools', 'Cobler\'s Tools', 'Cook\'s Utensils', 'Glassblower\'s Tools', 'Jeweler\'s Tools',
     'Leatherworker\'s Tools', 'Mason\'s Tools', 'Painter\'s Supplies', 'Potter\'s Tools', 'Smith\'s Tools', 'Tinker\'s Tools',
@@ -217,8 +217,6 @@ const trinkets = [
 ];
 const instruments = ['Bagpipes', 'Drum', 'Dulcimer', 'Flute', 'Lute', 'Lyre', 'Horn', 'Pan Flute', 'Shawm', 'Viol'];
 const arcaneFocuses = ['Crystal', 'Orb', 'Rod', 'Staff', 'Wand'];
-
-//pg2
 const eyes = {
     'Dwarf': ['brown', 'hazel', 'green'],
     'Elf': ['blue', 'gold', 'green', 'brown', 'hazel'],
@@ -254,8 +252,6 @@ const hairs = {
 };
 const allies = ["a traveling bard", "a retired knight", "a temple cleric"];
 const organizations = ["The Harpers", "The Zhentarim", "Emerald Enclave"];
-
-//pg 3
 const allSpells = {
     'Artificer': {
         'cantrips': ['Acid Splash',
@@ -300,7 +296,7 @@ const allSpells = {
             'Snare',
             'Tasha\'s Caustic Brew']
     },
-    'Barbarian': '',
+    'Barbarian': {'cantrips': [], 'spells': []},
     'Bard': {
         'cantrips': ['Blade Ward',
             'Dancing Lights',
@@ -379,8 +375,8 @@ const allSpells = {
             'Shield of Faith', 'Thunderous Smite', 'Wrathful Smite'
         ]
     },
-    'Ranger': '',   // Spellcasting begins at level 2
-    'Rogue': '',    // Spellcasting via Arcane Trickster (level 3)
+    'Ranger': {'cantrips': [], 'spells': []},   // Spellcasting begins at level 2
+    'Rogue': {'cantrips': [], 'spells': []},    // Spellcasting via Arcane Trickster (level 3)
     'Sorcerer': {
         'cantrips': [
             'Acid Splash', 'Blade Ward', 'Chill Touch', 'Dancing Lights', 'Fire Bolt',
@@ -444,7 +440,7 @@ async function generateCharacter() {
 
     //function call
     const charName = getName(race, gender);
-    const stats = getStats(race);
+    const stats = getStats({[race]: subrace});
     const statMods = {
         'STR': getMod(stats.STR),
         'DEX': getMod(stats.DEX),
@@ -474,6 +470,7 @@ async function generateCharacter() {
     const spellAB = getSpellAttackBonus(spellClass, spellAbility);
     const spells = getSpells(spellClass);
 
+    let appearance = "", backstory = "";
     try {
         const appearancePrompt = race === "Dragonborn"
             ? `Write a short character description for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
@@ -491,8 +488,8 @@ async function generateCharacter() {
                 content: `Write a short character backstory for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD.`,
             }],
         });
-        const appearance = appearanceRes.choices[0].message.content.trim();
-        const backstory = backstoryRes.choices[0].message.content.trim();
+        appearance = appearanceRes.choices[0].message.content.trim();
+        backstory = backstoryRes.choices[0].message.content.trim();
     } catch (error) {
         console.error("Error generating character data:", error);
         throw error;
@@ -543,11 +540,10 @@ async function generateCharacter() {
     }
 }
 
+//helper functions//
 function randomValue(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
-
-//functions!!!//
 function rollStat() {
     let rolls = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1);
     rolls.sort((a, b) => b - a);
@@ -752,6 +748,7 @@ function getStats(race) {
         stats[stat1] += 1;
         stats[stat2] += 1;
     }
+    return stats;
 }
 function getSkillProficiencies(charClass, background, race) {
     const skills = ['Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception', 'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine', 'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion', 'Sleight of Hand', 'Stealth', 'Survival'];
@@ -1612,4 +1609,5 @@ function getSpellAttackBonus(charClass, spellAbility) {
     return ABs[charClass];
 }
 
-generateCharacter().then(console.log);
+//call
+generateCharacter().then(console.log).catch(console.error);
