@@ -497,8 +497,7 @@ async function generateCharacter() {
         console.error("Error generating character data:", error);
         throw error;
     }
-    return {
-        //pg 1    
+    return {   
         DC,
         charName,
         charClass,
@@ -526,7 +525,6 @@ async function generateCharacter() {
         bond,
         flaw,
         features,
-        //pg 2
         age,
         height,
         weight,
@@ -537,7 +535,6 @@ async function generateCharacter() {
         organization,
         appearance,
         backstory,
-        //pg 3
         spellClass,
         spellAbility,
         spellDC,
