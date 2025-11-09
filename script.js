@@ -30,8 +30,8 @@ const subclasses = {
     'Warlock': ['The Archfey', 'The Fiend', 'The Great Old One'],
     'Wizard': ['School of Abjuration', 'School of Conjuration', 'School of Divination', 'School of Enchantment', 'School of Evocation', 'School of Illusion', 'School of Necromancy', 'School of Transmutation']
 };
-const races = ['Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling'];
-const subraces = {
+const charRaces = ['Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling'];
+const charSubraces = {
     'Dwarf': ['Hill Dwarf', 'Mountain Dwarf'],
     'Elf': ['High Elf', 'Wood Elf', 'Dark Elf (Drow)'],
     'Halfling': ['Lightfoot Halfling', 'Stout Halfling'],
@@ -73,7 +73,7 @@ const ideals = {
     'Outlander': ['Change. Life is like the seasons, in constant change, and we must change with it.', 'Greater Good. It is each person\'s responsibility to make the most happiness for the whole tribe.', 'Honor. If I dishonor myself, I dishonor my whole clan.', 'Might. The strongest are meant to rule.', 'Nature. The natural world is more important than all the constructs of civilization.', 'Glory. I must earn glory in battle, for myself and my clan.'],
     'Sage': ['Knowledge. The path to power and self-improvement is through knowledge.', 'Beauty. What is beautiful points us beyond itself toward what is true.', 'Logic. Emotions must not cloud our logical thinking.', 'No Limits. Nothing should fetter the infinite possibility of all existence.', 'Power. Knowledge is the path to power and domination.', 'Self-Improvement. The goal of a life of study is the betterment of oneself.'],
     'Sailor': ['Respect. The thing that keeps a ship together is mutual respect between captain and crew.', 'Fairness. We all do the work, so we all share in the rewards.', 'Freedom. The sea is freedom—the freedom to go anywhere and do anything.', 'Mastery. I\'m a predator, and the other ships on the sea are my prey.', 'People. I\'m committed to my crewmates, not to ideals.', 'Aspiration. Someday I\'ll own my own ship and chart my own destiny.'],
-    'Soldier': ['Greater Good. Our lot is to lay down our lives in defense of others.', 'Responsibility. I do what I must and obey just authority.', 'Independence. When people follow orders blindly, they embrace a kind of tyranny.', 'Might. In life as in war, the stronger force wins.', 'Live and Let Live. Ideals aren\'t worth killing over or going to war for.', 'Nation. My city, nation, or people are all that matter.'],
+    'Soldier': ['Greater Good. Our lot is to lay down our lives in defense of others.', 'Responsibility. I do what I must and obey just authority.', 'Independence. When people follow orders blindly, they embcharRace a kind of tyranny.', 'Might. In life as in war, the stronger force wins.', 'Live and Let Live. Ideals aren\'t worth killing over or going to war for.', 'Nation. My city, nation, or people are all that matter.'],
     'Urchin': ['Respect. All people, rich or poor, deserve respect.', 'Community. We have to take care of each other, because no one else is going to do it.', 'Change. The low are lifted up, and the high and mighty are brought down. Change is the nature of things.', 'Retribution. The rich need to be shown what life and death are like in the gutters.', 'People. I help the people who help me—that\'s what keeps us alive.', 'Aspiration. I\'m going to prove that I\'m worthy of a better life.']
 };
 const bonds = {
@@ -100,7 +100,7 @@ const flaws = {
     'Guild Artisan': ['I\'ll do anything to get my hands on something rare or priceless.', 'I\'m quick to assume that someone is trying to cheat me.', 'No one must ever learn that I once stole money from guild coffers.', 'I\'m never satisfied with what I have— I always want more.', 'I would kill to acquire a noble title.', 'I\'m horribly jealous of anyone who can outshine my handiwork. Everywhere I go, I\'m surrounded by rivals.'],
     'Hermit': ['Now that I\'ve returned to the world, I enjoy its delights a little too much.', 'I harbor dark, bloodthirsty thoughts that my isolation and meditation failed to quell.', 'I am dogmatic in my thoughts and philosophy.', 'I let my need to win arguments overshadow friendships and harmony.', 'I\'d risk too much to uncover a lost bit of knowledge.', 'I like keeping secrets and won\'t share them with anyone.'],
     'Noble': ['I secretly believe that everyone is beneath me.', 'I hide a truly scandalous secret that could ruin my family forever.', 'I too often hear veiled insults and threats in every word addressed to me, and I\'m quick to anger.', 'I have an insatiable desire for carnal pleasures.', 'In fact, the world does revolve around me.', 'By my words and actions, I often bring shame to my family.'],
-    'Outlander': ['I am too enamored of ale, wine, and other intoxicants.', 'There\'s no room for caution in a life lived to the fullest.', 'I remember every insult I\'ve received and nurse a silent resentment toward anyone who\'s ever wronged me.', 'I am slow to trust members of other races, tribes, and societies.', 'Violence is my answer to almost any challenge.', 'Don\'t expect me to save those who can\'t save themselves. It is nature\'s way that the strong thrive and the weak perish.'],
+    'Outlander': ['I am too enamored of ale, wine, and other intoxicants.', 'There\'s no room for caution in a life lived to the fullest.', 'I remember every insult I\'ve received and nurse a silent resentment toward anyone who\'s ever wronged me.', 'I am slow to trust members of other charRaces, tribes, and societies.', 'Violence is my answer to almost any challenge.', 'Don\'t expect me to save those who can\'t save themselves. It is nature\'s way that the strong thrive and the weak perish.'],
     'Sage': ['I am easily distracted by the promise of information.', 'Most people scream and run when they see a demon. I stop and take notes on its anatomy.', 'Unlocking an ancient mystery is worth the price of a civilization.', 'I overlook obvious solutions in favor of complicated ones.', 'I speak without really thinking through my words, invariably insulting others.', 'I can\'t keep a secret to save my life, or anyone else\'s.'],
     'Sailor': ['I follow orders, even if I think they\'re wrong.', 'I\'ll say anything to avoid having to do extra work.', 'Once someone questions my courage, I never back down no matter how dangerous the situation.', 'Once I start drinking, it\'s hard for me to stop.', 'I can\'t help but pocket loose coins and other trinkets I come across.', 'My pride will probably lead to my destruction.'],
     'Soldier': ['The monstrous enemy we faced in battle still leaves me quivering with fear.', 'I have little respect for anyone who is not a proven warrior.', 'I made a terrible mistake in battle that cost many lives—and I would do anything to keep that mistake secret.', 'My hatred of my enemies is blind and unreasoning.', 'I obey the law, even if the law causes misery.', 'I\'d rather eat my armor than admit when I\'m wrong.'],
@@ -420,27 +420,27 @@ const allSpells = {
 //main
 async function generateCharacter() {
     //simple
-    const race = randomValue(races);
+    const charRace = randomValue(charRaces);
     const gender = randomValue(genders);
     const DC = dificultyClasses['Medium']; // or pick randomly from Object.keys(dificultyClasses)
     const charClass = randomValue(classes);
     const subclass = randomValue(subclasses[charClass]);
-    const subrace = subraces[race] ? randomValue(subraces[race]) : null;
+    const charSubrace = charSubraces[charRace] ? randomValue(charSubraces[charRace]) : null;
     const background = backgrounds[Math.floor(Math.random() * backgrounds.length)];
     const alignment = alignments[Math.floor(Math.random() * alignments.length)];
     const personality = personalities[background][Math.floor(Math.random() * personalities[background].length)];
     const ideal = ideals[background][Math.floor(Math.random() * ideals[background].length)];;
     const bond = bonds[background][Math.floor(Math.random() * bonds[background].length)];;
     const flaw = flaws[background][Math.floor(Math.random() * flaws[background].length)];;
-    const eye = eyes[race]?.[Math.floor(Math.random() * eyes[race].length)] || "brown";
-    const skin = skins[race]?.[Math.floor(Math.random() * skins[race].length)] || "tan";
-    const hair = hairs[race]?.length ? randomValue(hairs[race]) : "no hair";
+    const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
+    const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
+    const hair = hairs[charRace]?.length ? randomValue(hairs[charRace]) : "no hair";
     const ally = allies[Math.floor(Math.random() * allies.length)];
     const organization = organizations[Math.floor(Math.random() * organizations.length)];
 
     //function call
-    const charName = getName(race, gender);
-    const stats = getStats({[race]: subrace});
+    const charName = getName(charRace, gender);
+    const stats = getStats({[charRace]: charSubrace});
     const statMods = {
         'STR': getMod(stats.STR),
         'DEX': getMod(stats.DEX),
@@ -450,20 +450,20 @@ async function generateCharacter() {
         'CHA': getMod(stats.CHA)
     };
     const initiative = statMods.DEX;
-    const skillProficiencies = getSkillProficiencies(charClass, background, race);
+    const skillProficiencies = getSkillProficiencies(charClass, background, charRace);
     const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
     const passivePerception = skillModifiers['Perception'];
     const proficiency = getProficiencies(charClass, background);
-    const language = getLanguages(race, charClass, background);
+    const language = getLanguages(charRace, charClass, background);
     const HP = getHealthPoints(charClass, statMods.CON);
     const hitDice = getHitDice(charClass);
     const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX);
-    const speed = getSpeed(race);
+    const speed = getSpeed(charRace);
     const equipment = getEquipment(charClass, background);
-    const features = getFeatures(race, subrace, charClass);
-    const age = getAge(race);
-    const height = getHeight(race);
-    const weight = getWeight(race);
+    const features = getFeatures(charRace, charSubrace, charClass);
+    const age = getAge(charRace);
+    const height = getHeight(charRace);
+    const weight = getWeight(charRace);
     const spellClass = getSpellClass(charClass);
     const spellAbility = getSpellAbility(spellClass);
     const spellDC = getSpellDifficultyClass(spellClass, spellAbility);
@@ -472,9 +472,9 @@ async function generateCharacter() {
 
     let appearance = "", backstory = "";
     try {
-        const appearancePrompt = race === "Dragonborn"
-            ? `Write a short character description for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-            : `Write a short character description for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+        const appearancePrompt = charRace === "Dragonborn"
+            ? `Write a short character description for a ${gender} ${charRace} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+            : `Write a short character description for a ${gender} ${charRace} ${charClass} who used to be a ${background} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
         const appearanceRes = await client.chat.completions.create({
             model: "gpt-4-turbo",
@@ -485,7 +485,7 @@ async function generateCharacter() {
             model: "gpt-4-turbo",
             messages: [{
                 role: "user",
-                content: `Write a short character backstory for a ${gender} ${race} ${charClass} who used to be a ${background} in DnD.`,
+                content: `Write a short character backstory for a ${gender} ${charRace} ${charClass} who used to be a ${background} in DnD.`,
             }],
         });
         appearance = appearanceRes.choices[0].message.content.trim();
@@ -499,8 +499,8 @@ async function generateCharacter() {
         charName,
         charClass,
         subclass,
-        race,
-        subrace,
+        charRace,
+        charSubrace,
         background,
         alignment,
         gender,
@@ -552,7 +552,7 @@ function rollStat() {
 function getMod(stat) {
     return Math.round((stat - 10) / 2);
 }
-function getName(race, gender) {
+function getName(charRace, gender) {
     let name = '';
     const names = {
         'Dwarf': {
@@ -638,18 +638,18 @@ function getName(race, gender) {
         }
     };
 
-    if (race === 'Human') {
+    if (charRace === 'Human') {
         const cultures = Object.keys(names['Human']);
         const culture = randomValue(cultures);
         const first = randomValue(names['Human'][culture][gender]);
         const last = randomValue(names['Human'][culture].Surname);
         name = `${first} ${last}`;
-    } else if (race === 'Gnome') {
+    } else if (charRace === 'Gnome') {
         const first = randomValue(names['Gnome'][gender]);
         const nick = randomValue(names['Gnome'].Nicknames);
         const fam = randomValue(names['Gnome'].Family);
         name = `${first} (${nick}) ${fam}`;
-    } else if (race === 'Half-Elf') {
+    } else if (charRace === 'Half-Elf') {
         // choose either Elf-like or Human-like
         if (Math.random() < 0.5) {
             const first = randomValue(names['Elf'][gender]);
@@ -663,17 +663,17 @@ function getName(race, gender) {
             name = `${first} ${last}`;
         }
     } else {
-        if (!names[race]) {
-            name = `${race}ling`;
+        if (!names[charRace]) {
+            name = `${charRace}ling`;
         } else {
-            const first = randomValue(names[race][gender] || names[race].Male || names[race].Female);
-            const fam = randomValue(names[race].Family || []);
+            const first = randomValue(names[charRace][gender] || names[charRace].Male || names[charRace].Female);
+            const fam = randomValue(names[charRace].Family || []);
             name = fam ? `${first} ${fam}` : first;
         }
     }
     return name;
 }
-function getStats(race) {
+function getStats(charRace) {
     let stats = {
         STR: rollStat(),
         DEX: rollStat(),
@@ -682,12 +682,12 @@ function getStats(race) {
         WIS: rollStat(),
         CHA: rollStat(),
     }
-    // Handle standard races (strings)
-    if (race === 'Dragonborn') {
+    // Handle standard charRaces (strings)
+    if (charRace === 'Dragonborn') {
         stats.STR += 2;
         stats.CHA += 1;
     }
-    else if (race === 'Human') {
+    else if (charRace === 'Human') {
         stats.STR += 1;
         stats.DEX += 1;
         stats.CON += 1;
@@ -695,49 +695,49 @@ function getStats(race) {
         stats.WIS += 1;
         stats.CHA += 1;
     }
-    else if (race === 'Half-Orc') {
+    else if (charRace === 'Half-Orc') {
         stats.STR += 2;
         stats.CON += 1;
     }
-    else if (race === 'Tiefling') {
+    else if (charRace === 'Tiefling') {
         stats.CHA += 2;
         stats.INT += 1;
     }
 
-    // Handle subraces — assume race can be an object like { Elf: "High Elf" }
-    else if (typeof race === 'object') {
-        if (race.Dwarf === 'Hill Dwarf') {
+    // Handle charSubraces — assume charRace can be an object like { Elf: "High Elf" }
+    else if (typeof charRace === 'object') {
+        if (charRace.Dwarf === 'Hill Dwarf') {
             stats.CON += 2;
             stats.WIS += 1;
-        } else if (race.Dwarf === 'Mountain Dwarf') {
+        } else if (charRace.Dwarf === 'Mountain Dwarf') {
             stats.CON += 2;
             stats.STR += 2;
-        } else if (race.Elf === 'High Elf') {
+        } else if (charRace.Elf === 'High Elf') {
             stats.DEX += 2;
             stats.INT += 1;
-        } else if (race.Elf === 'Dark Elf (Drow)') {
+        } else if (charRace.Elf === 'Dark Elf (Drow)') {
             stats.DEX += 2;
             stats.CHA += 1;
-        } else if (race.Elf === 'Wood Elf') {
+        } else if (charRace.Elf === 'Wood Elf') {
             stats.DEX += 2;
             stats.WIS += 1;
-        } else if (race.Halfling === 'Lightfoot Halfling') {
+        } else if (charRace.Halfling === 'Lightfoot Halfling') {
             stats.DEX += 2;
             stats.CHA += 1;
-        } else if (race.Halfling === 'Stout Halfling') {
+        } else if (charRace.Halfling === 'Stout Halfling') {
             stats.DEX += 2;
             stats.CON += 1;
-        } else if (race.Gnome === 'Rock Gnome') {
+        } else if (charRace.Gnome === 'Rock Gnome') {
             stats.INT += 2;
             stats.CON += 1;
-        } else if (race.Gnome === 'Forest Gnome') {
+        } else if (charRace.Gnome === 'Forest Gnome') {
             stats.INT += 2;
             stats.DEX += 1;
         }
     }
 
     // Handle special case: Half-Elf
-    else if (race === 'Half-Elf') {
+    else if (charRace === 'Half-Elf') {
         stats.CHA += 2;
         const statKeys = Object.keys(stats);
         const stat1 = statKeys[Math.floor(Math.random() * statKeys.length)];
@@ -750,7 +750,7 @@ function getStats(race) {
     }
     return stats;
 }
-function getSkillProficiencies(charClass, background, race) {
+function getSkillProficiencies(charClass, background, charRace) {
     const skills = ['Acrobatics', 'Animal Handling', 'Arcana', 'Athletics', 'Deception', 'History', 'Insight', 'Intimidation', 'Investigation', 'Medicine', 'Nature', 'Perception', 'Performance', 'Persuasion', 'Religion', 'Sleight of Hand', 'Stealth', 'Survival'];
     let skillProficienciesTrue = [];
     if (charClass == 'Artificer') {
@@ -967,7 +967,7 @@ function getSkillProficiencies(charClass, background, race) {
             skillProficienciesTrue.push('Slight of Hand', 'Stealth');
         }
     }
-    if (race == 'Half-Elf') {
+    if (charRace == 'Half-Elf') {
         const skill1 = skills.filter(skill => skillProficiencies.includes(skill) == false)[Math.floor(Math.random() * (skills.length - skillProficiencies.length))];
         const skill2 = skills.filter(skill => (skillProficiencies.includes(skill) == false && skill != skill1))[Math.floor(Math.random() * (skills.length - skillProficiencies.length - 1))];
         skillProficienciesTrue.push(skill1, skill2);
@@ -1111,8 +1111,8 @@ function getProficiencies(charClass, background) {
     const prof = profs.join(', ');
     return prof;
 }
-function getLanguages(background, charClass, race) {
-    const race = race;
+function getLanguages(background, charClass, charRace) {
+    const charRace = charRace;
     let languagesKnown = [];
     let knownLanguages = {
         'Dwarf': ['Common', 'Dwarvish'],
@@ -1128,33 +1128,33 @@ function getLanguages(background, charClass, race) {
         'Half-Orc': ['Common', 'Orc'],
         'Tiefling': ['Common', 'Infernal']
     };
-    languagesKnown.push(knownLanguages[race]);
+    languagesKnown.push(knownLanguages[charRace]);
 
 
     if (charClass == 'Druid') {
         languagesKnown.push('Druidic');
     } else if ((charClass == 'Cleric' && subclasses.Cleric == 'Knowledge Domain' && level >= 1) || (charClass == 'Rogue' && subclasses.Rogue == 'Mastermind' && level >= 3)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
-        const lang2 = languages.filter(lang => lang != knownLanguages.race || lang1)[Math.floor(Math.random() * (languages.length - 2))];
+        const lang1 = languages.filter(lang => lang != knownLanguages.charRace)[Math.floor(Math.random() * (languages.length - 1))];
+        const lang2 = languages.filter(lang => lang != knownLanguages.charRace || lang1)[Math.floor(Math.random() * (languages.length - 2))];
         languagesKnown.push(lang1, lang2);
     } else if (charClass == 'Ranger' && level >= 1) {
         const preferredEnemy = preferredEnemiesLang[Math.floor(Math.random() * Object.keys(preferredEnemiesLang).length)];
-        const lang1 = preferredEnemy.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * preferredEnemy.length)] || preferredEnemy;
+        const lang1 = preferredEnemy.filter(lang => lang != knownLanguages.charRace)[Math.floor(Math.random() * preferredEnemy.length)] || preferredEnemy;
         languagesKnown.push(lang1);
     } else if (charClass == 'Monk' && level >= 13) {
-        languagesKnown.push(languages.filter(lang => lang != knownLanguages.race));
+        languagesKnown.push(languages.filter(lang => lang != knownLanguages.charRace));
     } else if (charClass == 'Druid' && subclasses.Druid == 'Circle of the Shepherd') {
         languagesKnown.push('Sylvan');
     } else if (charClass == 'Fighter' && subclasses.Fighter == 'Cavalier') {
-        languagesKnown.push(languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))]);
+        languagesKnown.push(languages.filter(lang => lang != knownLanguages.charRace)[Math.floor(Math.random() * (languages.length - 1))]);
     }
 
     if (['Acolyte', 'Sage'].includes(background)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
-        const lang2 = languages.filter(lang => lang != knownLanguages.race || lang1)[Math.floor(Math.random() * (languages.length - 2))];
+        const lang1 = languages.filter(lang => lang != knownLanguages.charRace)[Math.floor(Math.random() * (languages.length - 1))];
+        const lang2 = languages.filter(lang => lang != knownLanguages.charRace || lang1)[Math.floor(Math.random() * (languages.length - 2))];
         languagesKnown.push(lang1, lang2);
     } else if (['Guild Artisan', 'Hermit', 'Noble', 'Outlander'].includes(background)) {
-        const lang1 = languages.filter(lang => lang != knownLanguages.race)[Math.floor(Math.random() * (languages.length - 1))];
+        const lang1 = languages.filter(lang => lang != knownLanguages.charRace)[Math.floor(Math.random() * (languages.length - 1))];
         languagesKnown.push(lang1);
     }
 
@@ -1272,7 +1272,7 @@ function getArmorClass(charClass, armor, dexScore) {
     // Additional logic for armor can be added here
     return armorClass;
 }
-function getSpeed(race) {
+function getSpeed(charRace) {
     const speeds = {
         'Dwarf': '25ft',
         'Elf': '30ft',
@@ -1284,7 +1284,7 @@ function getSpeed(race) {
         'Half-Orc': '30ft',
         'Tiefling': '30ft',
     }
-    return speeds[race];
+    return speeds[charRace];
 }
 function getEquipment(charClass, background) {
     let equipments = [];
@@ -1367,10 +1367,10 @@ function getEquipment(charClass, background) {
     const equipment = equipments.join(', ');
     return equipment;
 }
-function getFeatures(race, subrace, charClass) {
+function getFeatures(charRace, charSubrace, charClass) {
     let featuresArray = [];
     const draconicAncestry = ['Black', 'Blue', 'Brass', 'Bronze', 'Copper', 'Gold', 'Green', 'Red', 'Silver', 'White'];
-    const raceFeatures = {
+    const charRaceFeatures = {
         'Dwarf': {
             'Hill Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Toughness',
             'Mountain Dwarf': 'Darkvision, Dwarven Resilience, Dwarven Combat Training, Stonecunning, Dwarven Armor Training'
@@ -1410,28 +1410,28 @@ function getFeatures(race, subrace, charClass) {
         'Wizard': 'Spellcasting, Arcane Recovery',
     };
 
-    if (raceFeatures[race] == '') {
+    if (charRaceFeatures[charRace] == '') {
         Object.keys(charClass).forEach(charClass => {
             const featureC = classFeatures[charClass];
             featuresArray.push(featureC);
         });
     } else if (classFeatures[charClass] == '') {
-        Object.keys(race).forEach(race => {
-            if (subrace === undefined) {
-                const featureR = raceFeatures[race]; //gets the race features
+        Object.keys(charRace).forEach(charRace => {
+            if (charSubrace === undefined) {
+                const featureR = charRaceFeatures[charRace]; //gets the charRace features
                 featuresArray.push(featureR);
             } else {
-                const featureR = raceFeatures[race][subrace]; //gets the race features
+                const featureR = charRaceFeatures[charRace][charSubrace]; //gets the charRace features
                 featuresArray.push(featureR);
             }
         });
     } else {
-        Object.keys(race).forEach(race => {
-            if (subrace === undefined) {
-                const featureR = raceFeatures[race]; //gets the race features
+        Object.keys(charRace).forEach(charRace => {
+            if (charSubrace === undefined) {
+                const featureR = charRaceFeatures[charRace]; //gets the charRace features
                 featuresArray.push(featureR);
             } else {
-                const featureR = raceFeatures[race][subrace]; //gets the race features
+                const featureR = charRaceFeatures[charRace][charSubrace]; //gets the charRace features
                 featuresArray.push(featureR);
             }
         });
@@ -1444,7 +1444,7 @@ function getFeatures(race, subrace, charClass) {
     let features = featuresArray.join(", ");
     return features;
 }
-function getAge(race) {
+function getAge(charRace) {
     const ranges = {
         Dwarf: [50, 350],
         Elf: [100, 750],
@@ -1456,10 +1456,10 @@ function getAge(race) {
         "Half-Orc": [14, 75],
         Tiefling: [18, 120],
     };
-    const [min, max] = ranges[race] || [20, 100];
+    const [min, max] = ranges[charRace] || [20, 100];
     return Math.floor(Math.random() * (max - min) + min);
 }
-function getHeight(race) {
+function getHeight(charRace) {
     const ranges = {
         Dwarf: [48, 60],
         Elf: [60, 78],
@@ -1471,13 +1471,13 @@ function getHeight(race) {
         "Half-Orc": [60, 78],
         Tiefling: [60, 78],
     };
-    const [min, max] = ranges[race] || [60, 72];
+    const [min, max] = ranges[charRace] || [60, 72];
     const inches = Math.floor(Math.random() * (max - min) + min);
     const feet = Math.floor(inches / 12);
     const inchPart = inches % 12;
     return `${feet}'${inchPart}"`;
 }
-function getWeight(race) {
+function getWeight(charRace) {
     const weights = {
         'Dwarf': '150 lb',
         'Elf': Math.floor(Math.random() * (145 - 90) + 90) + ' lb',
@@ -1489,7 +1489,7 @@ function getWeight(race) {
         'Half-Orc': Math.floor(Math.random * (max - min) + min) + ' lb',
         'Tiefling': Math.floor(Math.random * (max - min) + min) + ' lb'
     }
-    return weights[race];
+    return weights[charRace];
 }
 function getSpells(charClass) {
     let spells = {
