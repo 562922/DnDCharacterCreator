@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>D&D Character Sheet</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div class="controls">
+    <button id="generateBtn">Generate New Character</button>
+    <button id="downloadBtn">Download as PDF</button>
+  </div>
+
+  <div id="character-sheet" class="sheet"></div>
+
+  <script type="module">
+    import { generateCharacter } from './script.js';
+
+    let currentCharacter = null;
+
+    async function displayCharacter() {
+      const data = await generateCharacter();
+      currentCharacter = data;
+
+      const sheet = document.getElementById('character-sheet');
+      sheet.innerHTML = `
+        <div class="sheet-container">
+          <header class="char-header">
+            <h1 class="char-name">${data.charName}</h1>
+            <div class="char-info">
+              <span><strong>Class & Subclass:</strong> ${data.charClass} (${data.charSubclass})</span>
+              <span><strong>Race:</strong> ${data.charRace}${data.charSubrace ? ' - ' + data.charSubrace : ''}</span>
+              <span><strong>Background:</strong> ${data.charBackground}</span>
+              <span><strong>Alignment:</strong> ${data.alignment}</span>
+            </div>
+          </header>
+
+          <div class="sheet-grid">
+            <div class="left-column">
+              <section class="stat-block">
+                <h2>Abilities</h2>
+                ${Object.entries(data.stats)
+                  .map(([k, v]) => `
+                    <div class="stat-box">
+                      <span class="label">${k}</span>
+                      <span class="value">${v}</span>
+                      <span class="mod">${data.statMods[k] >= 0 ? '+' : ''}${data.statMods[k]}</span>
+                    </div>`)
+                  .join('')}
+              </section>
+
+              <section class="detail-box">
+                <h2>Combat</h2>
+                <p><strong>Armor Class:</strong> ${data.AC}</p>
+                <p><strong>Hit Points:</strong> ${data.HP}</p>
+                <p><strong>Speed:</strong> ${data.speed} ft</p>
+                <p><strong>Initiative:</strong> ${data.initiative >= 0 ? '+' : ''}${data.initiative}</p>
+                <p><strong>Proficiency Bonus:</strong> +2</p>
+              </section>
+
+              <section class="traits-box">
+                <h2>Personality</h2>
+                <p><strong>Traits:</strong> ${data.personality}</p>
+                <p><strong>Ideals:</strong> ${data.ideal}</p>
+                <p><strong>Bonds:</strong> ${data.bond}</p>
+                <p><strong>Flaws:</strong> ${data.flaw}</p>
+              </section>
+
+              <section class="feature-box">
+                <h2>Features & Traits</h2>
+                <p>${Array.isArray(data.features) ? data.features.join('<br>') : data.features}</p>
+              </section>
+            </div>
+
+            <div class="right-column">
+              <section class="appearance-box">
+                <h2>Appearance</h2>
+                <p>${data.appearance}</p>
+                <div class="bio">
+                  <p><strong>Age:</strong> ${data.age}</p>
+                  <p><strong>Height:</strong> ${data.height}</p>
+                  <p><strong>Weight:</strong> ${data.weight}</p>
+                  <p><strong>Eyes:</strong> ${data.eye}</p>
+                  <p><strong>Skin:</strong> ${data.skin}</p>
+                  <p><strong>Hair:</strong> ${data.hair}</p>
+                </div>
+              </section>
+
+              <section class="backstory-box">
+                <h2>Backstory</h2>
+                <p>${data.backstory}</p>
+              </section>
+
+              <section class="spells-box">
+                <h2>Spellcasting</h2>
+                <p><strong>Class:</strong> ${data.spellClass || '—'}</p>
+                <p><strong>Ability:</strong> ${data.spellAbility || '—'}</p>
+                <p><strong>Save DC:</strong> ${data.spellDC || '—'}</p>
+                <p><strong>Attack Bonus:</strong> ${data.spellAB || '—'}</p>
+                <p><strong>Spells:</strong> ${(data.spells?.spells || []).join(', ') || 'None'}</p>
+              </section>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Event listeners
+    document.getElementById('generateBtn').addEventListener('click', displayCharacter);
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      if (!currentCharacter) {
+        alert('Generate a character first!');
+        return;
+      }
+      const element = document.getElementById('character-sheet');
+      const opt = {
+        margin: 0.2,
+        filename: `${currentCharacter.charName.replace(/\s+/g, '_')}_Sheet.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    });
+
+    // Auto-generate when page loads
+    displayCharacter();
+  </script>
+</body>
+</html>
