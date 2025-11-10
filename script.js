@@ -466,7 +466,7 @@ const quirks = [
 
 
 //main
-async function generateCharacter() {
+export async function generateCharacter() {
     //simple
     const charRace = getRandom(races);
     const charGender = getRandom(genders);
