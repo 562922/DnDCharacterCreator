@@ -1783,4 +1783,4 @@ function getSpellAttackBonus(Class, stats) {
 }
 
 //call
-generateCharacter().then(console.log).catch(console.error);
+//generateCharacter().then(console.log).catch(console.error);
