@@ -648,8 +648,8 @@ function getName(race, gender) {
     let name = '';
     const names = {
         'Dwarf': {
-            'Male': ['Adrik, Alberich, Baern, Barendd, Brottor, Bruenor, Dain, Darrak, Delg, Eberk, Fargrim, Flint, Gardain, Harbek, Kildrak, Morgran, Orsik, Rangrim, Rurik, Taklinn, Thorin, Thrain, Traubon, Ulfgar, Vondal'],
-            'Female': ['Amber, Artin, Audhild, Bardryn, Dagnal, Diesa, Elda, Falkrunn, Finellen, Gillydd, Gunloda, Gurdis, Helja, Hlin, Kathra, Kristryd, Ilde, Liftrasa, Mardred, Riswynn, Sannl, Torbera, Torgga, Vistra'],
+            'Male': ['Adrik', 'Alberich', 'Baern', 'Barendd', 'Brottor', 'Bruenor', 'Dain', 'Darrak', 'Delg', 'Eberk', 'Fargrim', 'Flint', 'Gardain', 'Harbek', 'Kildrak', 'Morgran', 'Orsik', 'Rangrim', 'Rurik', 'Taklinn', 'Thorin', 'Thrain', 'Traubon', 'Ulfgar', 'Vondal'],
+            'Female': ['Amber', 'Artin', 'Audhild', 'Bardryn', 'Dagnal', 'Diesa', 'Elda', 'Falkrunn', 'Finellen', 'Gillydd', 'Gunloda', 'Gurdis', 'Helja', 'Hlin', 'Kathra', 'Kristryd', 'Ilde', 'Liftrasa', 'Mardred', 'Riswynn', 'Sannl', 'Torbera', 'Torgga', 'Vistra'],
             'Family': ['Balderk', 'Battlehammer', 'Brawnanvil', 'Dankil', 'Fireforge', 'Frostbeard', 'Gorunn', 'Holderhek', 'Ironfist', 'Loderr', 'Lutgehr', 'Rumnaheim', 'Strakeln', 'Torunn', 'Ungart']
         },
         'Elf': {
