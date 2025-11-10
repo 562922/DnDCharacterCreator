@@ -13,12 +13,13 @@
     <button id="downloadBtn">Download as PDF</button>
   </div>
 
-  <div id="character-sheet" class="sheet"></div>
+  <div id="character-sheet" class="sheet" contenteditable="false"></div>
 
   <script type="module">
     import { generateCharacter } from './script.js';
 
     let currentCharacter = null;
+    let editingEnabled = false;
 
     async function displayCharacter() {
       const data = await generateCharacter();
@@ -28,12 +29,12 @@
       sheet.innerHTML = `
         <div class="sheet-container">
           <header class="char-header">
-            <h1 class="char-name">${data.charName}</h1>
+            <h1 class="char-name editable" contenteditable="true">${data.charName}</h1>
             <div class="char-info">
-              <span><strong>Class & Subclass:</strong> ${data.charClass} (${data.charSubclass})</span>
-              <span><strong>Race:</strong> ${data.charRace}${data.charSubrace ? ' - ' + data.charSubrace : ''}</span>
-              <span><strong>Background:</strong> ${data.charBackground}</span>
-              <span><strong>Alignment:</strong> ${data.alignment}</span>
+              <span><strong>Class & Subclass:</strong> <span class="editable" contenteditable="true">${data.charClass} (${data.charSubclass})</span></span>
+              <span><strong>Race:</strong> <span class="editable" contenteditable="true">${data.charRace}${data.charSubrace ? ' - ' + data.charSubrace : ''}</span></span>
+              <span><strong>Background:</strong> <span class="editable" contenteditable="true">${data.charBackground}</span></span>
+              <span><strong>Alignment:</strong> <span class="editable" contenteditable="true">${data.alignment}</span></span>
             </div>
           </header>
 
@@ -43,7 +44,7 @@
                 <h2>Abilities</h2>
                 ${Object.entries(data.stats)
                   .map(([k, v]) => `
-                    <div class="stat-box">
+                    <div class="stat-box editable" contenteditable="true">
                       <span class="label">${k}</span>
                       <span class="value">${v}</span>
                       <span class="mod">${data.statMods[k] >= 0 ? '+' : ''}${data.statMods[k]}</span>
@@ -53,53 +54,53 @@
 
               <section class="detail-box">
                 <h2>Combat</h2>
-                <p><strong>Armor Class:</strong> ${data.AC}</p>
-                <p><strong>Hit Points:</strong> ${data.HP}</p>
-                <p><strong>Speed:</strong> ${data.speed} ft</p>
-                <p><strong>Initiative:</strong> ${data.initiative >= 0 ? '+' : ''}${data.initiative}</p>
-                <p><strong>Proficiency Bonus:</strong> +2</p>
+                <p><strong>Armor Class:</strong> <span class="editable" contenteditable="true">${data.AC}</span></p>
+                <p><strong>Hit Points:</strong> <span class="editable" contenteditable="true">${data.HP}</span></p>
+                <p><strong>Speed:</strong> <span class="editable" contenteditable="true">${data.speed}</span> ft</p>
+                <p><strong>Initiative:</strong> <span class="editable" contenteditable="true">${data.initiative >= 0 ? '+' : ''}${data.initiative}</span></p>
+                <p><strong>Proficiency Bonus:</strong> <span class="editable" contenteditable="true">+2</span></p>
               </section>
 
               <section class="traits-box">
                 <h2>Personality</h2>
-                <p><strong>Traits:</strong> ${data.personality}</p>
-                <p><strong>Ideals:</strong> ${data.ideal}</p>
-                <p><strong>Bonds:</strong> ${data.bond}</p>
-                <p><strong>Flaws:</strong> ${data.flaw}</p>
+                <p><strong>Traits:</strong> <span class="editable" contenteditable="true">${data.personality}</span></p>
+                <p><strong>Ideals:</strong> <span class="editable" contenteditable="true">${data.ideal}</span></p>
+                <p><strong>Bonds:</strong> <span class="editable" contenteditable="true">${data.bond}</span></p>
+                <p><strong>Flaws:</strong> <span class="editable" contenteditable="true">${data.flaw}</span></p>
               </section>
 
               <section class="feature-box">
                 <h2>Features & Traits</h2>
-                <p>${Array.isArray(data.features) ? data.features.join('<br>') : data.features}</p>
+                <p class="editable" contenteditable="true">${Array.isArray(data.features) ? data.features.join('<br>') : data.features}</p>
               </section>
             </div>
 
             <div class="right-column">
               <section class="appearance-box">
                 <h2>Appearance</h2>
-                <p>${data.appearance}</p>
+                <p class="editable" contenteditable="true">${data.appearance}</p>
                 <div class="bio">
-                  <p><strong>Age:</strong> ${data.age}</p>
-                  <p><strong>Height:</strong> ${data.height}</p>
-                  <p><strong>Weight:</strong> ${data.weight}</p>
-                  <p><strong>Eyes:</strong> ${data.eye}</p>
-                  <p><strong>Skin:</strong> ${data.skin}</p>
-                  <p><strong>Hair:</strong> ${data.hair}</p>
+                  <p><strong>Age:</strong> <span class="editable" contenteditable="true">${data.age}</span></p>
+                  <p><strong>Height:</strong> <span class="editable" contenteditable="true">${data.height}</span></p>
+                  <p><strong>Weight:</strong> <span class="editable" contenteditable="true">${data.weight}</span></p>
+                  <p><strong>Eyes:</strong> <span class="editable" contenteditable="true">${data.eye}</span></p>
+                  <p><strong>Skin:</strong> <span class="editable" contenteditable="true">${data.skin}</span></p>
+                  <p><strong>Hair:</strong> <span class="editable" contenteditable="true">${data.hair}</span></p>
                 </div>
               </section>
 
               <section class="backstory-box">
                 <h2>Backstory</h2>
-                <p>${data.backstory}</p>
+                <p class="editable" contenteditable="true">${data.backstory}</p>
               </section>
 
               <section class="spells-box">
                 <h2>Spellcasting</h2>
-                <p><strong>Class:</strong> ${data.spellClass || '—'}</p>
-                <p><strong>Ability:</strong> ${data.spellAbility || '—'}</p>
-                <p><strong>Save DC:</strong> ${data.spellDC || '—'}</p>
-                <p><strong>Attack Bonus:</strong> ${data.spellAB || '—'}</p>
-                <p><strong>Spells:</strong> ${(data.spells?.spells || []).join(', ') || 'None'}</p>
+                <p><strong>Class:</strong> <span class="editable" contenteditable="true">${data.spellClass || '—'}</span></p>
+                <p><strong>Ability:</strong> <span class="editable" contenteditable="true">${data.spellAbility || '—'}</span></p>
+                <p><strong>Save DC:</strong> <span class="editable" contenteditable="true">${data.spellDC || '—'}</span></p>
+                <p><strong>Attack Bonus:</strong> <span class="editable" contenteditable="true">${data.spellAB || '—'}</span></p>
+                <p><strong>Spells:</strong> <span class="editable" contenteditable="true">${(data.spells?.spells || []).join(', ') || 'None'}</span></p>
               </section>
             </div>
           </div>
@@ -109,6 +110,7 @@
 
     // Event listeners
     document.getElementById('generateBtn').addEventListener('click', displayCharacter);
+
     document.getElementById('downloadBtn').addEventListener('click', () => {
       if (!currentCharacter) {
         alert('Generate a character first!');
@@ -125,7 +127,7 @@
       html2pdf().set(opt).from(element).save();
     });
 
-    // Auto-generate when page loads
+    // Generate first character
     displayCharacter();
   </script>
 </body>
