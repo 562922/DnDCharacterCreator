@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D&D Character Sheet</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.22.0/dist/pdf-lib.min.js"></script>
 </head>
 <body>
   <div class="controls">
@@ -13,122 +13,98 @@
     <button id="downloadBtn">Download as PDF</button>
   </div>
 
-  <div id="character-sheet" class="sheet" contenteditable="false"></div>
+  <div id="preview-container">
+    <p id="preview-msg">Character will be generated here.</p>
+  </div>
 
   <script type="module">
-    import { generateCharacter } from './script.js';
+    import { PDFDocument, StandardFonts, rgb } from 'https://cdn.jsdelivr.net/npm/pdf-lib@1.22.0/dist/pdf-lib.min.js';
 
     let currentCharacter = null;
-    let editingEnabled = false;
 
-    async function displayCharacter() {
-      const data = await generateCharacter();
-      currentCharacter = data;
-
-      const sheet = document.getElementById('character-sheet');
-      sheet.innerHTML = `
-        <div class="sheet-container">
-          <header class="char-header">
-            <h1 class="char-name editable" contenteditable="true">${data.charName}</h1>
-            <div class="char-info">
-              <span><strong>Class & Subclass:</strong> <span class="editable" contenteditable="true">${data.charClass} (${data.charSubclass})</span></span>
-              <span><strong>Race:</strong> <span class="editable" contenteditable="true">${data.charRace}${data.charSubrace ? ' - ' + data.charSubrace : ''}</span></span>
-              <span><strong>Background:</strong> <span class="editable" contenteditable="true">${data.charBackground}</span></span>
-              <span><strong>Alignment:</strong> <span class="editable" contenteditable="true">${data.alignment}</span></span>
-            </div>
-          </header>
-
-          <div class="sheet-grid">
-            <div class="left-column">
-              <section class="stat-block">
-                <h2>Abilities</h2>
-                ${Object.entries(data.stats)
-                  .map(([k, v]) => `
-                    <div class="stat-box editable" contenteditable="true">
-                      <span class="label">${k}</span>
-                      <span class="value">${v}</span>
-                      <span class="mod">${data.statMods[k] >= 0 ? '+' : ''}${data.statMods[k]}</span>
-                    </div>`)
-                  .join('')}
-              </section>
-
-              <section class="detail-box">
-                <h2>Combat</h2>
-                <p><strong>Armor Class:</strong> <span class="editable" contenteditable="true">${data.AC}</span></p>
-                <p><strong>Hit Points:</strong> <span class="editable" contenteditable="true">${data.HP}</span></p>
-                <p><strong>Speed:</strong> <span class="editable" contenteditable="true">${data.speed}</span> ft</p>
-                <p><strong>Initiative:</strong> <span class="editable" contenteditable="true">${data.initiative >= 0 ? '+' : ''}${data.initiative}</span></p>
-                <p><strong>Proficiency Bonus:</strong> <span class="editable" contenteditable="true">+2</span></p>
-              </section>
-
-              <section class="traits-box">
-                <h2>Personality</h2>
-                <p><strong>Traits:</strong> <span class="editable" contenteditable="true">${data.personality}</span></p>
-                <p><strong>Ideals:</strong> <span class="editable" contenteditable="true">${data.ideal}</span></p>
-                <p><strong>Bonds:</strong> <span class="editable" contenteditable="true">${data.bond}</span></p>
-                <p><strong>Flaws:</strong> <span class="editable" contenteditable="true">${data.flaw}</span></p>
-              </section>
-
-              <section class="feature-box">
-                <h2>Features & Traits</h2>
-                <p class="editable" contenteditable="true">${Array.isArray(data.features) ? data.features.join('<br>') : data.features}</p>
-              </section>
-            </div>
-
-            <div class="right-column">
-              <section class="appearance-box">
-                <h2>Appearance</h2>
-                <p class="editable" contenteditable="true">${data.appearance}</p>
-                <div class="bio">
-                  <p><strong>Age:</strong> <span class="editable" contenteditable="true">${data.age}</span></p>
-                  <p><strong>Height:</strong> <span class="editable" contenteditable="true">${data.height}</span></p>
-                  <p><strong>Weight:</strong> <span class="editable" contenteditable="true">${data.weight}</span></p>
-                  <p><strong>Eyes:</strong> <span class="editable" contenteditable="true">${data.eye}</span></p>
-                  <p><strong>Skin:</strong> <span class="editable" contenteditable="true">${data.skin}</span></p>
-                  <p><strong>Hair:</strong> <span class="editable" contenteditable="true">${data.hair}</span></p>
-                </div>
-              </section>
-
-              <section class="backstory-box">
-                <h2>Backstory</h2>
-                <p class="editable" contenteditable="true">${data.backstory}</p>
-              </section>
-
-              <section class="spells-box">
-                <h2>Spellcasting</h2>
-                <p><strong>Class:</strong> <span class="editable" contenteditable="true">${data.spellClass || '—'}</span></p>
-                <p><strong>Ability:</strong> <span class="editable" contenteditable="true">${data.spellAbility || '—'}</span></p>
-                <p><strong>Save DC:</strong> <span class="editable" contenteditable="true">${data.spellDC || '—'}</span></p>
-                <p><strong>Attack Bonus:</strong> <span class="editable" contenteditable="true">${data.spellAB || '—'}</span></p>
-                <p><strong>Spells:</strong> <span class="editable" contenteditable="true">${(data.spells?.spells || []).join(', ') || 'None'}</span></p>
-              </section>
-            </div>
-          </div>
-        </div>
-      `;
+    async function fetchCharacter() {
+      try {
+        const res = await fetch("http://localhost:3000/api/character");
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        currentCharacter = data;
+        document.getElementById('preview-msg').textContent = `Character loaded: ${data.charName}`;
+      } catch (err) {
+        console.error(err);
+        alert('Failed to load character. Make sure API is running.');
+      }
     }
 
-    // Event listeners
-    document.getElementById('generateBtn').addEventListener('click', displayCharacter);
-
-    document.getElementById('downloadBtn').addEventListener('click', () => {
+    async function downloadPDF() {
       if (!currentCharacter) {
         alert('Generate a character first!');
         return;
       }
-      const element = document.getElementById('character-sheet');
-      const opt = {
-        margin: 0.2,
-        filename: `${currentCharacter.charName.replace(/\s+/g, '_')}_Sheet.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    });
 
-    // Generate first character
-    displayCharacter();
+      // Fetch blank official 5e sheet PDF (must be hosted or local)
+      const pdfUrl = '5e_blank_character_sheet.pdf'; // path to official blank PDF
+      const existingPdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const page = pdfDoc.getPage(0);
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      // Example: write character name at coordinates
+      page.drawText(currentCharacter.charName || 'Unnamed Hero', {
+        x: 50,
+        y: 700,
+        size: 14,
+        font,
+        color: rgb(0, 0, 0)
+      });
+
+      // Map other fields to positions (you must tweak coordinates)
+      page.drawText(currentCharacter.charClass || '', { x: 50, y: 680, size: 12, font, color: rgb(0,0,0) });
+      page.drawText(currentCharacter.charRace || '', { x: 50, y: 660, size: 12, font, color: rgb(0,0,0) });
+      page.drawText(currentCharacter.alignment || '', { x: 50, y: 640, size: 12, font, color: rgb(0,0,0) });
+
+      // Example: Ability scores
+      const stats = currentCharacter.stats || {};
+      const statMods = currentCharacter.statMods || {};
+      const statCoordinates = {
+        STR: {x: 50, y: 600},
+        DEX: {x: 50, y: 580},
+        CON: {x: 50, y: 560},
+        INT: {x: 50, y: 540},
+        WIS: {x: 50, y: 520},
+        CHA: {x: 50, y: 500}
+      };
+      for (const [stat, val] of Object.entries(stats)) {
+        const coord = statCoordinates[stat];
+        if (coord) {
+          page.drawText(`${val} (${statMods[stat] >=0 ? '+' : ''}${statMods[stat] ?? 0})`, {
+            x: coord.x,
+            y: coord.y,
+            size: 12,
+            font,
+            color: rgb(0,0,0)
+          });
+        }
+      }
+
+      // Generate PDF bytes
+      const pdfBytes = await pdfDoc.save();
+
+      // Trigger download
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentCharacter.charName?.replace(/\s+/g,'_') || 'Character'}_Sheet.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', fetchCharacter);
+    document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
+
+    // Auto-fetch on load
+    fetchCharacter();
   </script>
 </body>
 </html>

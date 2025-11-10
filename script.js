@@ -467,128 +467,131 @@ const quirks = [
 
 //main
 export async function generateCharacter() {
-    //simple
-    const charRace = getRandom(races);
-    const charGender = getRandom(genders);
-    const entries = Object.entries(difficultyClasses);
-    const [name, DC] = entries[Math.floor(Math.random() * entries.length)];
-    const NDC = `${name}: ${DC}`;
-    const charClass = getRandom(classes);
-    const charSubclass = getRandom(subclasses[charClass]);
-    const charSubrace = charSubraces[charRace] ? getRandom(charSubraces[charRace]) : null;
-    const charBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-    const alignment = alignments[Math.floor(Math.random() * alignments.length)];
-    const personality = personalities[charBackground][Math.floor(Math.random() * personalities[charBackground].length)];
-    const ideal = ideals[charBackground][Math.floor(Math.random() * ideals[charBackground].length)];;
-    const bond = bonds[charBackground][Math.floor(Math.random() * bonds[charBackground].length)];;
-    const flaw = flaws[charBackground][Math.floor(Math.random() * flaws[charBackground].length)];;
-    const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
-    const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
-    const hair = hairs[charRace]?.length ? getRandom(hairs[charRace]) : "no hair";
-    const ally = allies[Math.floor(Math.random() * allies.length)];
-    const organization = organizations[Math.floor(Math.random() * organizations.length)];
+  const charRace = getRandom(races);
+  const charGender = getRandom(genders);
+  const entries = Object.entries(difficultyClasses);
+  const [name, DC] = entries[Math.floor(Math.random() * entries.length)];
+  const NDC = `${name}: ${DC}`;
+  const charClass = getRandom(classes);
+  const charSubclass = getRandom(subclasses[charClass]);
+  const charSubrace = charSubraces[charRace]? getRandom(charSubraces[charRace]): null;
+  const charBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+  const alignment = alignments[Math.floor(Math.random() * alignments.length)];
+  const personality = personalities[charBackground][Math.floor(Math.random() * personalities[charBackground].length)];
+  const ideal = ideals[charBackground][Math.floor(Math.random() * ideals[charBackground].length)];
+  const bond = bonds[charBackground][Math.floor(Math.random() * bonds[charBackground].length)];
+  const flaw = flaws[charBackground][Math.floor(Math.random() * flaws[charBackground].length)];
+  const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
+  const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
+  const hair = hairs[charRace]?.length ? getRandom(hairs[charRace]) : "no hair";
+  const ally = allies[Math.floor(Math.random() * allies.length)];
+  const organization = organizations[Math.floor(Math.random() * organizations.length)];
 
-    //function call
-    const charName = getName(charRace, charGender);
-    const stats = getStats({ [charRace]: charSubrace });
-    const statMods = {
-        'STR': getMod(stats.STR),
-        'DEX': getMod(stats.DEX),
-        'CON': getMod(stats.CON),
-        'INT': getMod(stats.INT),
-        'WIS': getMod(stats.WIS),
-        'CHA': getMod(stats.CHA)
-    };
-    const initiative = statMods.DEX;
-    const skillProficiencies = getSkillProficiencies(charClass, charBackground, charRace);
-    const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
-    const passivePerception = skillModifiers['Perception'];
-    const proficiency = getProficiencies(charClass, charBackground);
-    const language = getLanguages(charRace, charClass, charBackground);
-    const HP = getHealthPoints(charClass, statMods.CON);
-    const hitDice = getHitDice(charClass);
-    const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX, statMods.WIS, statMods.CON);
-    const speed = getSpeed(charRace);
-    const equipment = getEquipment(charClass, charBackground);
-    const features = getFeatures(charRace, charSubrace, charClass);
-    const age = getAge(charRace);
-    const height = getHeight(charRace);
-    const weight = getWeight(charRace);
-    const spellClass = getSpellClass(charClass);
-    const spellAbility = getSpellAbility(spellClass);
-    const spellDC = getSpellDifficultyClass(spellClass, stats);
-    const spellAB = getSpellAttackBonus(spellClass, stats);
-    const spells = getSpells(spellClass);
-    const charData = {charRace, charClass, charGender, charBackground, age, eye, skin, hair, height}
-    
-    let appearance = "", backstory = "";
-    try {
+  // derived attributes
+  const charName = getName(charRace, charGender);
+  const stats = getStats({ [charRace]: charSubrace });
+  const statMods = {
+    STR: getMod(stats.STR),
+    DEX: getMod(stats.DEX),
+    CON: getMod(stats.CON),
+    INT: getMod(stats.INT),
+    WIS: getMod(stats.WIS),
+    CHA: getMod(stats.CHA)
+  };
+  const initiative = statMods.DEX;
+  const skillProficiencies = getSkillProficiencies(charClass, charBackground, charRace);
+  const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
+  const passivePerception = skillModifiers["Perception"];
+  const proficiency = getProficiencies(charClass, charBackground);
+  const language = getLanguages(charRace, charClass, charBackground);
+  const HP = getHealthPoints(charClass, statMods.CON);
+  const hitDice = getHitDice(charClass);
+  const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX, statMods.WIS, statMods.CON);
+  const speed = getSpeed(charRace);
+  const equipment = getEquipment(charClass, charBackground);
+  const features = getFeatures(charRace, charSubrace, charClass);
+  const age = getAge(charRace);
+  const height = getHeight(charRace);
+  const weight = getWeight(charRace);
+  const spellClass = getSpellClass(charClass);
+  const spellAbility = getSpellAbility(spellClass);
+  const spellDC = getSpellDifficultyClass(spellClass, stats);
+  const spellAB = getSpellAttackBonus(spellClass, stats);
+  const spells = getSpells(spellClass);
+  const charData = { charRace, charClass, charGender, charBackground, age, eye, skin, hair, height };
+
+  // === GPT-4 appearance + backstory ===
+  let appearance = "", backstory = "";
+  try {
     const appearancePrompt = charRace === "Dragonborn"
-        ? `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-        : `Write a short character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+      ? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+      : `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
     const appearanceRes = await client.chat.completions.create({
-        model: "gpt-4.1",
-        messages: [{ role: "user", content: appearancePrompt }],
+      model: "gpt-4.1",
+      messages: [{ role: "user", content: appearancePrompt }]
     });
 
     const backstoryRes = await client.chat.completions.create({
-        model: "gpt-4.1",
-        messages: [{
-            role: "user",
-            content: `Write a short character backstory for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in DnD.`,
-        }],
+      model: "gpt-4.1",
+      messages: [{
+        role: "user",
+        content: `Write a concise backstory (100–150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
+      }]
     });
+
     appearance = appearanceRes.choices[0].message.content.trim();
     backstory = backstoryRes.choices[0].message.content.trim();
-    } catch (error) {
-        appearance = generateCharacterDescription(charData);
-        backstory = generateBackstory(charData);
-    }
-    return {
-        NDC,
-        charName,
-        charClass,
-        charSubclass,
-        charRace,
-        charSubrace,
-        charBackground,
-        alignment,
-        charGender,
-        stats,
-        statMods,
-        skillProficiencies,
-        skillModifiers,
-        passivePerception,
-        proficiency,
-        language,
-        AC,
-        initiative,
-        speed,
-        HP,
-        hitDice,
-        equipment,
-        personality,
-        ideal,
-        bond,
-        flaw,
-        features,
-        age,
-        height,
-        weight,
-        eye,
-        skin,
-        hair,
-        ally,
-        organization,
-        appearance,
-        backstory,
-        spellClass,
-        spellAbility,
-        spellDC,
-        spellAB,
-        spells
-    }
+  } catch (err) {
+    console.error("OpenAI request failed, falling back to local generation:", err);
+    appearance = generateCharacterDescription(charData);
+    backstory = generateBackstory(charData);
+  }
+
+  return {
+    NDC,
+    charName,
+    charClass,
+    charSubclass,
+    charRace,
+    charSubrace,
+    charBackground,
+    alignment,
+    charGender,
+    stats,
+    statMods,
+    skillProficiencies,
+    skillModifiers,
+    passivePerception,
+    proficiency,
+    language,
+    AC,
+    initiative,
+    speed,
+    HP,
+    hitDice,
+    equipment,
+    personality,
+    ideal,
+    bond,
+    flaw,
+    features,
+    age,
+    height,
+    weight,
+    eye,
+    skin,
+    hair,
+    ally,
+    organization,
+    appearance,
+    backstory,
+    spellClass,
+    spellAbility,
+    spellDC,
+    spellAB,
+    spells
+  };
 }
 
 //helper functions//
