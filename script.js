@@ -433,18 +433,49 @@ const allSpells = {
         ]
     }
 };
+//discription
+const traits = [
+  "stoic", "curious", "brooding", "kind-hearted", "mischievous", "stern",
+  "haunted", "brave", "reckless", "gentle", "cunning", "noble", "sarcastic"
+];
+const goals = [
+  "seeking redemption for a past mistake",
+  "searching for a lost relic",
+  "trying to restore their family's honor",
+  "looking for a cure to a mysterious curse",
+  "driven by an unquenchable thirst for knowledge",
+  "hunting the one who betrayed them",
+  "protecting those who cannot protect themselves"
+];
+const origins = [
+  "grew up among humble farmers",
+  "was raised by wandering merchants",
+  "was trained in a remote monastery",
+  "survived in the slums of a bustling city",
+  "served in a royal court as a scribe",
+  "spent years as an outcast in the wilds"
+];
+const quirks = [
+  "has a habit of humming ancient songs",
+  "keeps a journal written in multiple languages",
+  "collects shiny trinkets from every town they visit",
+  "speaks to their weapon as if it were alive",
+  "can\'t resist a good riddle",
+  "has an odd superstition about the number seven"
+];
+
 
 //main
 async function generateCharacter() {
     //simple
-    const charRace = randomValue(races);
-    const charGender = randomValue(genders);
+    const charRace = getRandom(races);
+    const charGender = getRandom(genders);
     const entries = Object.entries(difficultyClasses);
     const [name, DC] = entries[Math.floor(Math.random() * entries.length)];
     const NDC = `${name}: ${DC}`;
-    const charClass = randomValue(classes);
-    const charSubclass = randomValue(subclasses[charClass]);
-    const charSubrace = charSubraces[charRace] ? randomValue(charSubraces[charRace]) : null;
+    const charClass = getRandom(classes);
+    const charSubclass = getRandom(subclasses[charClass]);
+    const charSubrace = charSubraces[charRace] ? getRandom(charSubraces[charRace]) : null;
     const charBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
     const alignment = alignments[Math.floor(Math.random() * alignments.length)];
     const personality = personalities[charBackground][Math.floor(Math.random() * personalities[charBackground].length)];
@@ -453,7 +484,7 @@ async function generateCharacter() {
     const flaw = flaws[charBackground][Math.floor(Math.random() * flaws[charBackground].length)];;
     const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
     const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
-    const hair = hairs[charRace]?.length ? randomValue(hairs[charRace]) : "no hair";
+    const hair = hairs[charRace]?.length ? getRandom(hairs[charRace]) : "no hair";
     const ally = allies[Math.floor(Math.random() * allies.length)];
     const organization = organizations[Math.floor(Math.random() * organizations.length)];
 
@@ -488,7 +519,8 @@ async function generateCharacter() {
     const spellDC = getSpellDifficultyClass(spellClass, stats);
     const spellAB = getSpellAttackBonus(spellClass, stats);
     const spells = getSpells(spellClass);
-
+    const charData = {charRace, charClass, charGender, charBackground, age, eye, skin, hair, height}
+    
     let appearance = "", backstory = "";
     try {
     const appearancePrompt = charRace === "Dragonborn"
@@ -510,8 +542,8 @@ async function generateCharacter() {
     appearance = appearanceRes.choices[0].message.content.trim();
     backstory = backstoryRes.choices[0].message.content.trim();
     } catch (error) {
-        console.error("Error generating character data:", error);
-        throw error;
+        appearance = generateCharacterDescription(charData);
+        backstory = generateBackstory(charData);
     }
     return {
         NDC,
@@ -560,7 +592,48 @@ async function generateCharacter() {
 }
 
 //helper functions//
-function randomValue(arr) {
+function generateCharacterDescription({
+  charRace,
+  charClass,
+  charGender,
+  charBackground,
+  age,
+  eye,
+  skin,
+  hair,
+  height
+}) {
+  const mood = getRandom(["serious", "adventurous", "enigmatic", "determined", "mysterious"]);
+  const personality = getRandom(traits);
+  const style = getRandom([
+    "aura of quiet strength",
+    "piercing gaze",
+    "calm confidence",
+    "air of mystery",
+    "warm but cautious smile"
+  ]);
+
+  // Dragonborns don’t usually have hair
+  const hairPart = charRace === "Dragonborn"
+    ? ""
+    : `, and ${hair} hair`;
+
+  return `A ${age}-year-old ${charGender} ${charRace} ${charClass} with ${eye} eyes, ${skin} skin${hairPart}. Standing ${height} tall, they carry an ${style}. Once a ${charBackground}, they are ${personality} and ${mood} by nature.`;
+}
+function generateBackstory({
+  charRace,
+  charClass,
+  charGender,
+  charBackground
+}) {
+  const origin = getRandom(origins);
+  const goal = getRandom(goals);
+  const quirk = getRandom(quirks);
+  const personality = getRandom(traits);
+
+  return `Born a ${charRace}, this ${charGender.toLowerCase()} ${charClass.toLowerCase()} ${origin}. As a ${charBackground.toLowerCase()}, they learned to be ${personality} and resourceful. Now, ${goal}. They ${quirk}, a small reminder of the life they've lived.`;
+}
+function getRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 function rollStat() {
@@ -659,34 +732,34 @@ function getName(race, gender) {
 
     if (race === 'Human') {
         const cultures = Object.keys(names['Human']);
-        const culture = randomValue(cultures);
-        const first = randomValue(names['Human'][culture][gender]);
-        const last = randomValue(names['Human'][culture].Surname);
+        const culture = getRandom(cultures);
+        const first = getRandom(names['Human'][culture][gender]);
+        const last = getRandom(names['Human'][culture].Surname);
         name = `${first} ${last}`;
     } else if (race === 'Gnome') {
-        const first = randomValue(names['Gnome'][gender]);
-        const nick = randomValue(names['Gnome'].Nicknames);
-        const fam = randomValue(names['Gnome'].Family);
+        const first = getRandom(names['Gnome'][gender]);
+        const nick = getRandom(names['Gnome'].Nicknames);
+        const fam = getRandom(names['Gnome'].Family);
         name = `${first} (${nick}) ${fam}`;
     } else if (race === 'Half-Elf') {
         // choose either Elf-like or Human-like
         if (Math.random() < 0.5) {
-            const first = randomValue(names['Elf'][gender]);
-            const fam = randomValue(names['Elf'].Family);
+            const first = getRandom(names['Elf'][gender]);
+            const fam = getRandom(names['Elf'].Family);
             name = `${first} ${fam}`;
         } else {
             const cultures = Object.keys(names['Human']);
-            const culture = randomValue(cultures);
-            const first = randomValue(names['Human'][culture][gender]);
-            const last = randomValue(names['Human'][culture].Surname);
+            const culture = getRandom(cultures);
+            const first = getRandom(names['Human'][culture][gender]);
+            const last = getRandom(names['Human'][culture].Surname);
             name = `${first} ${last}`;
         }
     } else {
         if (!names[race]) {
             name = `${race}ling`;
         } else {
-            const first = randomValue(names[race][gender] || names[race].Male || names[race].Female);
-            const fam = randomValue(names[race].Family || []);
+            const first = getRandom(names[race][gender] || names[race].Male || names[race].Female);
+            const fam = getRandom(names[race].Family || []);
             name = fam ? `${first} ${fam}` : first;
         }
     }
