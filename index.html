@@ -1,110 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D&D Character Sheet</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>D&D Character Sheet Generator</title>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.22.0/dist/pdf-lib.min.js"></script>
 </head>
+
 <body>
   <div class="controls">
     <button id="generateBtn">Generate New Character</button>
-    <button id="downloadBtn">Download as PDF</button>
+    <button id="downloadBtn">Download Character Sheet</button>
   </div>
-
   <div id="preview-container">
     <p id="preview-msg">Character will be generated here.</p>
   </div>
-
   <script type="module">
-    import { PDFDocument, StandardFonts, rgb } from 'https://cdn.jsdelivr.net/npm/pdf-lib@1.22.0/dist/pdf-lib.min.js';
-
+    const { PDFDocument, StandardFonts, rgb } = PDFLib;
     let currentCharacter = null;
 
+    // Fetch character data
     async function fetchCharacter() {
       try {
+        document.getElementById('preview-msg').textContent = 'Loading new character...';
         const res = await fetch("http://localhost:3000/api/character");
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
-        currentCharacter = data;
-        document.getElementById('preview-msg').textContent = `Character loaded: ${data.charName}`;
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        currentCharacter = await res.json();
+        displayCharacter(currentCharacter);
       } catch (err) {
-        console.error(err);
-        alert('Failed to load character. Make sure API is running.');
+        console.error('Fetch error:', err);
+        document.getElementById('preview-msg').textContent = '⚠️ Failed to load character. Ensure API is running.';
       }
     }
 
+    // Display character info in browser
+    function displayCharacter(c) {
+      const preview = document.getElementById('preview-msg');
+      preview.textContent = `
+${c.charName} — ${c.charRace} ${c.charClass}
+Alignment: ${c.alignment}
+Background: ${c.charBackground}
+
+STR ${c.stats?.STR} (${c.statMods?.STR >= 0 ? '+' : ''}${c.statMods?.STR})
+DEX ${c.stats?.DEX} (${c.statMods?.DEX >= 0 ? '+' : ''}${c.statMods?.DEX})
+CON ${c.stats?.CON} (${c.statMods?.CON >= 0 ? '+' : ''}${c.statMods?.CON})
+INT ${c.stats?.INT} (${c.statMods?.INT >= 0 ? '+' : ''}${c.statMods?.INT})
+WIS ${c.stats?.WIS} (${c.statMods?.WIS >= 0 ? '+' : ''}${c.statMods?.WIS})
+CHA ${c.stats?.CHA} (${c.statMods?.CHA >= 0 ? '+' : ''}${c.statMods?.CHA})
+
+HP: ${c.HP} | AC: ${c.AC} | Speed: ${c.speed} | Initiative: ${c.initiative}
+
+Personality: ${c.personality}
+Ideal: ${c.ideal}
+Bond: ${c.bond}
+Flaw: ${c.flaw}
+
+Features: ${Array.isArray(c.features) ? c.features.join(', ') : c.features}
+Spells: ${Array.isArray(c.spells?.spells) ? c.spells.spells.join(', ') : c.spells}
+
+Backstory:
+${c.backstory}
+      `.trim();
+    }
+
+    // Unified drawTextSafe helper with auto-wrap
+    function drawTextSafe(page, text, x, y, options = {}) {
+      if (text === undefined || text === null || String(text).trim().length === 0) return;
+      const {
+        font,
+        size = 12,
+        color = rgb(0, 0, 0),
+        maxWidth = 200,
+        lineHeight = 14
+      } = options;
+
+      const str = String(text);
+      const words = str.split(/\s+/);
+      let line = '';
+      let currY = y;
+
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const testLine = line ? line + ' ' + word : word;
+        const testWidth = font.widthOfTextAtSize(testLine, size);
+        if (testWidth > maxWidth && line.length > 0) {
+          page.drawText(line, { x, y: currY, size, font, color });
+          line = word;
+          currY -= lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+
+      if (line.length > 0) page.drawText(line, { x, y: currY, size, font, color });
+    }
+
+    // Generate PDF with data drawn on sheet
     async function downloadPDF() {
       if (!currentCharacter) {
         alert('Generate a character first!');
         return;
       }
 
-      // Fetch blank official 5e sheet PDF (must be hosted or local)
-      const pdfUrl = '5e_blank_character_sheet.pdf'; // path to official blank PDF
-      const existingPdfBytes = await fetch(pdfUrl).then(res => res.arrayBuffer());
+      try {
+        // Load your local copy of the sheet
+        const existingPdfBytes = await fetch('./CharacterSheet.pdf').then(r => r.arrayBuffer());
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+        const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const page = pdfDoc.getPage(0);
+        const c = currentCharacter;
 
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const page = pdfDoc.getPage(0);
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        // Character core info
+        drawTextSafe(page, c.charName, 95, 745, { font: helvetica });
+        drawTextSafe(page, `${c.charClass}${c.charSubclass ? ' (' + c.charSubclass + ')' : ''}`, 95, 730, { font: helvetica });
+        drawTextSafe(page, `${c.charRace}${c.charSubrace ? ' - ' + c.charSubrace : ''}`, 95, 715, { font: helvetica });
+        drawTextSafe(page, c.charBackground, 95, 700, { font: helvetica });
+        drawTextSafe(page, c.alignment, 95, 685, { font: helvetica });
+        drawTextSafe(page, c.level ?? 1, 480, 745, { font: helvetica });
 
-      // Example: write character name at coordinates
-      page.drawText(currentCharacter.charName || 'Unnamed Hero', {
-        x: 50,
-        y: 700,
-        size: 14,
-        font,
-        color: rgb(0, 0, 0)
-      });
+        // Stats
+        const statY = 650;
+        const col = [95, 150, 205, 260, 315, 370];
+        const stats = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+        stats.forEach((s, i) => {
+          const val = c.stats?.[s] ?? '';
+          const mod = c.statMods?.[s];
+          const modTxt = mod != null ? (mod >= 0 ? `+${mod}` : mod) : '';
+          drawTextSafe(page, `${val} (${modTxt})`, col[i], statY, { font: helvetica });
+        });
 
-      // Map other fields to positions (you must tweak coordinates)
-      page.drawText(currentCharacter.charClass || '', { x: 50, y: 680, size: 12, font, color: rgb(0,0,0) });
-      page.drawText(currentCharacter.charRace || '', { x: 50, y: 660, size: 12, font, color: rgb(0,0,0) });
-      page.drawText(currentCharacter.alignment || '', { x: 50, y: 640, size: 12, font, color: rgb(0,0,0) });
+        // Combat
+        drawTextSafe(page, `AC: ${c.AC}`, 95, 625, { font: helvetica });
+        drawTextSafe(page, `HP: ${c.HP}`, 165, 625, { font: helvetica });
+        drawTextSafe(page, `Speed: ${c.speed}`, 235, 625, { font: helvetica });
+        drawTextSafe(page, `Init: ${c.initiative}`, 305, 625, { font: helvetica });
 
-      // Example: Ability scores
-      const stats = currentCharacter.stats || {};
-      const statMods = currentCharacter.statMods || {};
-      const statCoordinates = {
-        STR: {x: 50, y: 600},
-        DEX: {x: 50, y: 580},
-        CON: {x: 50, y: 560},
-        INT: {x: 50, y: 540},
-        WIS: {x: 50, y: 520},
-        CHA: {x: 50, y: 500}
-      };
-      for (const [stat, val] of Object.entries(stats)) {
-        const coord = statCoordinates[stat];
-        if (coord) {
-          page.drawText(`${val} (${statMods[stat] >=0 ? '+' : ''}${statMods[stat] ?? 0})`, {
-            x: coord.x,
-            y: coord.y,
-            size: 12,
-            font,
-            color: rgb(0,0,0)
-          });
-        }
+        // Personality & Features
+        drawTextSafe(page, `Personality: ${c.personality}`, 95, 590, { font: helvetica, maxWidth: 400 });
+        drawTextSafe(page, `Ideal: ${c.ideal}`, 95, 575, { font: helvetica, maxWidth: 400 });
+        drawTextSafe(page, `Bond: ${c.bond}`, 95, 560, { font: helvetica, maxWidth: 400 });
+        drawTextSafe(page, `Flaw: ${c.flaw}`, 95, 545, { font: helvetica, maxWidth: 400 });
+
+        // Features & backstory
+        drawTextSafe(page, Array.isArray(c.features) ? c.features.join(', ') : c.features, 95, 520, { font: helvetica, maxWidth: 450 });
+        drawTextSafe(page, c.backstory, 60, 480, { font: helvetica, maxWidth: 500, lineHeight: 13 });
+
+        // Spells
+        drawTextSafe(page, `Spellcasting Class: ${c.spellClass}`, 380, 720, { font: helvetica });
+        drawTextSafe(page, `Spellcasting Ability: ${c.spellAbility}`, 380, 705, { font: helvetica });
+        drawTextSafe(page, `Spell Save DC: ${c.spellDC}`, 380, 690, { font: helvetica });
+        drawTextSafe(page, `Spell Attack Bonus: ${c.spellAB}`, 380, 675, { font: helvetica });
+        drawTextSafe(page, (c.spells?.spells || []).join(', '), 380, 660, { font: helvetica, maxWidth: 200 });
+
+        // Save and download
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${(c.charName || 'Character').replace(/\s+/g, '_')}_Sheet.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        alert('Failed to create PDF. Ensure CharacterSheet.pdf is accessible locally.');
       }
-
-      // Generate PDF bytes
-      const pdfBytes = await pdfDoc.save();
-
-      // Trigger download
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${currentCharacter.charName?.replace(/\s+/g,'_') || 'Character'}_Sheet.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
     }
 
     document.getElementById('generateBtn').addEventListener('click', fetchCharacter);
     document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
-
-    // Auto-fetch on load
-    fetchCharacter();
+    window.addEventListener('load', fetchCharacter);
   </script>
 </body>
+
 </html>
