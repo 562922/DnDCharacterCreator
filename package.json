@@ -1,0 +1,27 @@
+{
+  "name": "dnd-character-creator",
+  "version": "1.0.0",
+  "description": "A Dungeons & Dragons character generator that fills and displays a character sheet PDF using pdf-lib.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve",
+    "build": "echo 'Static project — no build needed'"
+  },
+  "keywords": [
+    "dnd",
+    "character-generator",
+    "pdf-lib",
+    "javascript",
+    "pdf"
+  ],
+  "author": "Green",
+  "license": "MIT",
+  "dependencies": {
+        "dotenv": "^17.2.3",
+        "openai": "^6.8.1"
+      },
+  "devDependencies": {
+    "serve": "^14.2.3"
+
+  }
+}

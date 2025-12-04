@@ -1,19 +1,12 @@
-//OpenAI
+// OpenAI
 import OpenAI from "openai";
 import { config } from 'dotenv';
 config({ path: './code.env' });
 const client = new OpenAI();
 
-//consts
+// Consts
 const profBonus = 2;
-const difficultyClasses = {
-    'Very easy': 5,
-    'Easy': 10,
-    'Medium': 15,
-    'Hard': 20,
-    'Very Hard': 25,
-    'Nearly Impossible': 30,
-};
+
 const classes = ['Artificer', 'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'];
 const subclasses = {
     'Artificer': ['Alchemist', 'Armorer', 'Artillerist', 'Battle Smith'],
@@ -84,16 +77,16 @@ const ideals = {
     'Entertainer': ['Beauty. When I perform, I make the world better than it was.', 'Tradition. The stories, legends, and songs of the past must never be forgotten.', 'Creativity. The world is in need of new ideas and bold action.', 'Greed. I\'m only in it for the money and fame.', 'People. I like seeing the smiles on people\'s faces when I perform. That\'s all that matters.', 'Honesty. Art should reflect the soul; it should come from within and reveal who we really are.'],
     'Folk Hero': ['Respect. People deserve to be treated with dignity and respect.', 'Fairness. No one should get preferential treatment before the law, and no one is above the law.', 'Freedom. Tyrants must not be allowed to oppress the people.', 'Might. If I become strong, I can take what I want—what I deserve.', 'Sincerity. There\'s no good in pretending to be something I\'m not.', 'Destiny. Nothing and no one can steer me away from my higher calling.'],
     'Guild Artisan': ['Community. It is the duty of all civilized people to strengthen the bonds of community and the security of civilization.', 'Generosity. My talents were given to me so that I could use them to benefit the world.', 'Freedom. Everyone should be free to pursue their own livelihood.', 'Greed. I\'m only in it for the money.', 'People. I\'m committed to the people I care about, not to ideals.', 'Aspiration. I work hard to be the best there is at my craft.'],
-    'Hermit': ['Greater Good. My gifts are meant to be shared with all, not used for my own benefit.', 'Logic. Emotions must not cloud our sense of what is right and true, or our logical thinking.', 'Free Thinking. Inquiry and curiosity are the pillars of progress.', 'Power. Solitude and contemplation are paths toward mystical or magical power.', 'Live and Let Live. Meddling in the affairs of others only causes trouble.', 'Self-Knowledge. If you know yourself, there\'s nothing left to know.'],
+    'Hermit': ['Greater Good. My gifts are meant to be shared with all, not used for my own benefit.', 'Logi(await c). Emotions must not cloud our sense of what is right and true, or our logical thinking.', 'Free Thinking. Inquiry and curiosity are the pillars of progress.', 'Power. Solitude and contemplation are paths toward mystical or magical power.', 'Live and Let Live. Meddling in the affairs of others only causes trouble.', 'Self-Knowledge. If you know yourself, there\'s nothing left to know.'],
     'Noble': ['Respect. Respect is due to me because of my position, but all people deserve to be treated with dignity.', 'Responsibility. It is my duty to respect the authority of those above me, just as those below me must respect mine.', 'Independence. I must prove that I can handle myself without the coddling of my family.', 'Power. If I can attain more power, no one will tell me what to do.', 'Family. Blood runs thicker than water.', 'Noble Obligation. It is my duty to protect and care for the people beneath me.'],
     'Outlander': ['Change. Life is like the seasons, in constant change, and we must change with it.', 'Greater Good. It is each person\'s responsibility to make the most happiness for the whole tribe.', 'Honor. If I dishonor myself, I dishonor my whole clan.', 'Might. The strongest are meant to rule.', 'Nature. The natural world is more important than all the constructs of civilization.', 'Glory. I must earn glory in battle, for myself and my clan.'],
-    'Sage': ['Knowledge. The path to power and self-improvement is through knowledge.', 'Beauty. What is beautiful points us beyond itself toward what is true.', 'Logic. Emotions must not cloud our logical thinking.', 'No Limits. Nothing should fetter the infinite possibility of all existence.', 'Power. Knowledge is the path to power and domination.', 'Self-Improvement. The goal of a life of study is the betterment of oneself.'],
+    'Sage': ['Knowledge. The path to power and self-improvement is through knowledge.', 'Beauty. What is beautiful points us beyond itself toward what is true.', 'Logi(await c). Emotions must not cloud our logical thinking.', 'No Limits. Nothing should fetter the infinite possibility of all existence.', 'Power. Knowledge is the path to power and domination.', 'Self-Improvement. The goal of a life of study is the betterment of oneself.'],
     'Sailor': ['Respect. The thing that keeps a ship together is mutual respect between captain and crew.', 'Fairness. We all do the work, so we all share in the rewards.', 'Freedom. The sea is freedom—the freedom to go anywhere and do anything.', 'Mastery. I\'m a predator, and the other ships on the sea are my prey.', 'People. I\'m committed to my crewmates, not to ideals.', 'Aspiration. Someday I\'ll own my own ship and chart my own destiny.'],
     'Soldier': ['Greater Good. Our lot is to lay down our lives in defense of others.', 'Responsibility. I do what I must and obey just authority.', 'Independence. When people follow orders blindly, they embrace a kind of tyranny.', 'Might. In life as in war, the stronger force wins.', 'Live and Let Live. Ideals aren\'t worth killing over or going to war for.', 'Nation. My city, nation, or people are all that matter.'],
     'Urchin': ['Respect. All people, rich or poor, deserve respect.', 'Community. We have to take care of each other, because no one else is going to do it.', 'Change. The low are lifted up, and the high and mighty are brought down. Change is the nature of things.', 'Retribution. The rich need to be shown what life and death are like in the gutters.', 'People. I help the people who help me—that\'s what keeps us alive.', 'Aspiration. I\'m going to prove that I\'m worthy of a better life.']
 };
 const bonds = {
-    'Acolyte': ['I would die to recover an ancient relic of my faith that was lost long ago.', 'I will someday get revenge on the corrupt temple hierarchy who branded me a heretic.', 'I owe my life to the priest who took me in when my parents died.', 'Everything I do is for the common people.', 'I will do anything to protect the temple where I served.', 'I seek to preserve a sacred text that my enemies consider heretical and seek to destroy.'],
+    'Acolyte': ['I would die to recover an ancient relic of my faith that was lost long ago.', 'I will someday get revenge on the corrupt temple hierarchy who branded me a hereti(await c).', 'I owe my life to the priest who took me in when my parents died.', 'Everything I do is for the common people.', 'I will do anything to protect the temple where I served.', 'I seek to preserve a sacred text that my enemies consider heretical and seek to destroy.'],
     'Charlatan': ['I fleeced the wrong person and must work to ensure that this individual never crosses paths with me or those I care about.', 'I owe everything to my mentor— a horrible person who\'s probably rotting in jail somewhere.', 'Somewhere out there, I have a child who doesn\'t know me. I\'m making the world better for him or her.', 'I come from a noble family, and one day I\'ll reclaim my lands and title from those who stole them from me.', 'A powerful person killed someone I love. Some day soon, I\'ll have my revenge.', 'I swindled and ruined a person who didn\'t deserve it. I seek to atone for my misdeeds but might never be able to forgive myself.'],
     'Criminal': ['I\'m trying to pay off an old debt I owe to a generous benefactor.', 'My ill-gotten gains go to support my family.', 'Something important was taken from me, and I aim to steal it back.', 'I will become the greatest thief that ever lived.', 'I\'m guilty of a terrible crime. I hope I can redeem myself for it.', 'Someone I loved died because of a mistake I made. That will never happen again.'],
     'Entertainer': ['My instrument is my most treasured possession, and it reminds me of someone I love.', 'Someone stole my precious instrument, and someday I\'ll get it back.', 'I want to be famous, whatever it takes.', 'I idolize a hero of the old tales and measure my deeds against that person\'s.', 'I will do anything to prove myself superior to my hated rival.', 'I would do anything for the other members of my old troupe.'],
@@ -382,7 +375,7 @@ const allSpells = {
         ]
     },
     'Fighter': '',  // Eldritch Knight subclass only (starts at level 3)
-    'Monk': '',     // Spellcasting via subclasses only (Way of Four Elements, etc.)
+    'Monk': '',     // Spellcasting via subclasses only (Way of Four Elements, et(await c).)
     'Paladin': {
         'cantrips': [],
         'spells': [
@@ -435,328 +428,327 @@ const allSpells = {
 };
 //discription
 const traits = [
-  "stoic", "curious", "brooding", "kind-hearted", "mischievous", "stern",
-  "haunted", "brave", "reckless", "gentle", "cunning", "noble", "sarcastic"
+    "stoic", "curious", "brooding", "kind-hearted", "mischievous", "stern",
+    "haunted", "brave", "reckless", "gentle", "cunning", "noble", "sarcastic"
 ];
 const goals = [
-  "seeking redemption for a past mistake",
-  "searching for a lost relic",
-  "trying to restore their family's honor",
-  "looking for a cure to a mysterious curse",
-  "driven by an unquenchable thirst for knowledge",
-  "hunting the one who betrayed them",
-  "protecting those who cannot protect themselves"
+    "seeking redemption for a past mistake",
+    "searching for a lost relic",
+    "trying to restore their family's honor",
+    "looking for a cure to a mysterious curse",
+    "driven by an unquenchable thirst for knowledge",
+    "hunting the one who betrayed them",
+    "protecting those who cannot protect themselves"
 ];
 const origins = [
-  "grew up among humble farmers",
-  "was raised by wandering merchants",
-  "was trained in a remote monastery",
-  "survived in the slums of a bustling city",
-  "served in a royal court as a scribe",
-  "spent years as an outcast in the wilds"
+    "grew up among humble farmers",
+    "was raised by wandering merchants",
+    "was trained in a remote monastery",
+    "survived in the slums of a bustling city",
+    "served in a royal court as a scribe",
+    "spent years as an outcast in the wilds"
 ];
 const quirks = [
-  "has a habit of humming ancient songs",
-  "keeps a journal written in multiple languages",
-  "collects shiny trinkets from every town they visit",
-  "speaks to their weapon as if it were alive",
-  "can\'t resist a good riddle",
-  "has an odd superstition about the number seven"
+    "has a habit of humming ancient songs",
+    "keeps a journal written in multiple languages",
+    "collects shiny trinkets from every town they visit",
+    "speaks to their weapon as if it were alive",
+    "can\'t resist a good riddle",
+    "has an odd superstition about the number seven"
 ];
 
 
-//main
+// Main
 async function generateCharacter() {
-  const charRace = getRandom(races);
-  const charGender = getRandom(genders);
-  const entries = Object.entries(difficultyClasses);
-  const [name, DC] = entries[Math.floor(Math.random() * entries.length)];
-  const NDC = `${name}: ${DC}`;
-  const charClass = getRandom(classes);
-  const charSubclass = getRandom(subclasses[charClass]);
-  const charSubrace = charSubraces[charRace]? getRandom(charSubraces[charRace]): null;
-  const charBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-  const alignment = alignments[Math.floor(Math.random() * alignments.length)];
-  const personality = personalities[charBackground][Math.floor(Math.random() * personalities[charBackground].length)];
-  const ideal = ideals[charBackground][Math.floor(Math.random() * ideals[charBackground].length)];
-  const bond = bonds[charBackground][Math.floor(Math.random() * bonds[charBackground].length)];
-  const flaw = flaws[charBackground][Math.floor(Math.random() * flaws[charBackground].length)];
-  const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
-  const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
-  const hair = hairs[charRace]?.length ? getRandom(hairs[charRace]) : "no hair";
-  const ally = allies[Math.floor(Math.random() * allies.length)];
-  const organization = organizations[Math.floor(Math.random() * organizations.length)];
+    const charRace = getRandom(races);
+    const charGender = getRandom(genders);
+    const charClass = getRandom(classes);
+    const charSubclass = getRandom(subclasses[charClass]);
+    const charSubrace = charSubraces[charRace] ? getRandom(charSubraces[charRace]) : null;
+    const charBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    const alignment = alignments[Math.floor(Math.random() * alignments.length)];
+    const personality = personalities[charBackground][Math.floor(Math.random() * personalities[charBackground].length)];
+    const ideal = ideals[charBackground][Math.floor(Math.random() * ideals[charBackground].length)];
+    const bond = bonds[charBackground][Math.floor(Math.random() * bonds[charBackground].length)];
+    const flaw = flaws[charBackground][Math.floor(Math.random() * flaws[charBackground].length)];
+    const eye = eyes[charRace]?.[Math.floor(Math.random() * eyes[charRace].length)] || "brown";
+    const skin = skins[charRace]?.[Math.floor(Math.random() * skins[charRace].length)] || "tan";
+    const hair = hairs[charRace]?.length ? getRandom(hairs[charRace]) : "no hair";
+    const ally = allies[Math.floor(Math.random() * allies.length)];
+    const organization = organizations[Math.floor(Math.random() * organizations.length)];
 
-  // derived attributes
-  const charName = getName(charRace, charGender);
-  const stats = getStats({ [charRace]: charSubrace });
-  const statMods = {
-    STR: getMod(stats.STR),
-    DEX: getMod(stats.DEX),
-    CON: getMod(stats.CON),
-    INT: getMod(stats.INT),
-    WIS: getMod(stats.WIS),
-    CHA: getMod(stats.CHA)
-  };
-  const initiative = statMods.DEX;
-  const skillProficiencies = getSkillProficiencies(charClass, charBackground, charRace);
-  const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
-  const passivePerception = skillModifiers["Perception"];
-  const proficiency = getProficiencies(charClass, charBackground);
-  const language = getLanguages(charRace, charClass, charBackground);
-  const HP = getHealthPoints(charClass, statMods.CON);
-  const hitDice = getHitDice(charClass);
-  const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX, statMods.WIS, statMods.CON);
-  const speed = getSpeed(charRace);
-  const equipment = getEquipment(charClass, charBackground);
-  const features = getFeatures(charRace, charSubrace, charClass);
-  const age = getAge(charRace);
-  const height = getHeight(charRace);
-  const weight = getWeight(charRace);
-  const spellClass = getSpellClass(charClass);
-  const spellAbility = getSpellAbility(spellClass);
-  const spellDC = getSpellDifficultyClass(spellClass, stats);
-  const spellAB = getSpellAttackBonus(spellClass, stats);
-  const spells = getSpells(spellClass);
-  const charData = { charRace, charClass, charGender, charBackground, age, eye, skin, hair, height };
+    // derived attributes
+    const charName = getName(charRace, charGender);
+    const stats = getStats({ [charRace]: charSubrace });
+    const statMods = {
+        STR: getMod(stats.STR),
+        DEX: getMod(stats.DEX),
+        CON: getMod(stats.CON),
+        INT: getMod(stats.INT),
+        WIS: getMod(stats.WIS),
+        CHA: getMod(stats.CHA)
+    };
+    const initiative = statMods.DEX;
+    const skillProficiencies = getSkillProficiencies(charClass, charBackground, charRace);
+    const skillModifiers = getSkillModifiers(statMods, skillProficiencies);
+    const passivePerception = skillModifiers["Perception"];
+    const proficiency = getProficiencies(charClass, charBackground);
+    const language = getLanguages(charRace, charClass, charBackground);
+    const HP = getHealthPoints(charClass, statMods.CON);
+    const hitDice = getHitDice(charClass);
+    const AC = getArmorClass(charClass, getArmor(charClass), statMods.DEX, statMods.WIS, statMods.CON);
+    const speed = getSpeed(charRace);
+    const equipment = getEquipment(charClass, charBackground);
+    const features = getFeatures(charRace, charSubrace, charClass);
+    const age = getAge(charRace);
+    const height = getHeight(charRace);
+    const weight = getWeight(charRace);
+    const spellClass = getSpellClass(charClass);
+    const spellAbility = getSpellAbility(spellClass);
+    const spellDC = getSpellDifficultyClass(spellClass, stats);
+    const spellAB = getSpellAttackBonus(spellClass, stats);
+    const spells = getSpells(spellClass);
+    const charData = { charRace, charClass, charGender, charBackground, age, eye, skin, hair, height };
 
-  // === GPT-4 appearance + backstory ===
-  let appearance = "", backstory = "";
-  try {
-    const appearancePrompt = charRace === "Dragonborn"
-      ? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-      : `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+    // === GPT-4 appearance + backstory ===
+    let appearance = "", backstory = "";
+    try {
+        const appearancePrompt = charRace === "Dragonborn"
+            ? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+            : `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
-    const appearanceRes = await client.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [{ role: "user", content: appearancePrompt }]
-    });
+        const appearanceRes = await client.chat.completions.create({
+            model: "gpt-4.1",
+            messages: [{ role: "user", content: appearancePrompt }]
+        });
 
-    const backstoryRes = await client.chat.completions.create({
-      model: "gpt-4.1",
-      messages: [{
-        role: "user",
-        content: `Write a concise backstory (100–150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
-      }]
-    });
+        const backstoryRes = await client.chat.completions.create({
+            model: "gpt-4.1",
+            messages: [{
+                role: "user",
+                content: `Write a concise backstory (100-150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
+            }]
+        });
 
-    appearance = appearanceRes.choices[0].message.content.trim();
-    backstory = backstoryRes.choices[0].message.content.trim();
-  } catch (err) {
-    console.error("OpenAI request failed, falling back to local generation:", err);
-    appearance = generateCharacterDescription(charData);
-    backstory = generateBackstory(charData);
-  }
+        appearance = appearanceRes.choices[0].message.content.trim();
+        backstory = backstoryRes.choices[0].message.content.trim();
+    } catch (err) {
+        appearance = generateCharacterDescription(charData);
+        backstory = generateBackstory(charData);
+    }
 
-  return {
-    NDC,
-    charName,
-    charClass,
-    charSubclass,
+    return {
+        charName,
+        charClass,
+        charSubclass,
+        charRace,
+        charSubrace,
+        charBackground,
+        alignment,
+        charGender,
+        stats,
+        statMods,
+        skillProficiencies,
+        skillModifiers,
+        passivePerception,
+        proficiency,
+        language,
+        AC,
+        initiative,
+        speed,
+        HP,
+        hitDice,
+        equipment,
+        personality,
+        ideal,
+        bond,
+        flaw,
+        features,
+        age,
+        height,
+        weight,
+        eye,
+        skin,
+        hair,
+        ally,
+        organization,
+        appearance,
+        backstory,
+        spellClass,
+        spellAbility,
+        spellDC,
+        spellAB,
+        spells
+    };
+}
+
+async function characterView(character) {
+    const currentCharacter = generateCharacter();
+    const existingPdfBytes = await fetch("CharacterSheet.pdf").then(res => res.arrayBuffer());
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc(await c).getForm();
+    const c = currentCharacter;
+
+    // Character Details
+    form.getTextField("CharacterName").setText((await c).charName || "");
+    const charClassSubclass = [];
+    charClassSubclass.push((await c).charClass, ' (', (await c). charSubclass, ') ', ' 1');
+    form.getTextField("ClassLevel").setText(charClassSubclass.toString() || "");
+    form.getTextField("Background").setText((await c).charBackground || "");
+    form.getTextField("PlayerName").setText("");
+    form.getTextField("Race").setText((await c).charRace || "");
+    form.getTextField("Alignment").setText((await c).alignment || "");
+    form.getTextField("XP").setText("0");
+
+    // Stats and Mods
+    form.getTextField("STR").setText((await c).stats.STR?.toString() || "");
+    form.getTextField("STRmod").setText((await c).statMods.STR);
+    form.getTextField("DEX").setText((await c).stats.DEX?.toString() || "");
+    form.getTextField("DEXmod").setText((await c).statMods.DEX);
+    form.getTextField("CON").setText((await c).stats.CON?.toString() || "");
+    form.getTextField("CONmod").setText((await c).statMods.CON);
+    form.getTextField("INT").setText((await c).stats.INT?.toString() || "");
+    form.getTextField("INTmod").setText((await c).statMods.INT);
+    form.getTextField("WIS").setText((await c).stats.WIS?.toString() || "");
+    form.getTextField("WISmod").setText((await c).statMods.WIS);
+    form.getTextField("CHA").setText((await c).stats.CHA?.toString() || "");
+    form.getTextField("CHAmod").setText((await c).statMods.CHA);
+
+    // Saving Throws
+
+    // Middle Data
+    form.getTextField("AC").setText((await c).AC?.toString() || "10");
+    form.getTextField("Initiative").setText((await c).initiative);
+    form.getTextField("Speed").setText((await c).speed?.toString() || "30");
+    form.getTextField("HPMax").setText((await c).HP?.toString() || "0");
+    form.getTextField("HPCurrent").setText((await c).HP?.toString() || "0");
+    form.getTextField("HDTotal").setText((await c).hitDice.toString() || "");
+    form.getTextField("HD").setText((await c).hitDice.toString() || "");
+
+    // Skills
+    form.getTextField("Acrobatics").setText((await c).skillModifiers.Acrobatics.toString() || "");
+    form.getTextField("Animal").setText((await c).skillModifiers["Animal Handling"].toString() || "");
+    form.getTextField("Athletics").setText((await c).skillModifiers.Athletics.toString() || "");
+    form.getTextField("Deception").setText((await c).skillModifiers.Deception.toString() || "");
+    form.getTextField("History").setText((await c).skillModifiers.History.toString() || "");
+    form.getTextField("Insight").setText((await c).skillModifiers.Insight.toString() || "");
+    form.getTextField("Intimidation").setText((await c).skillModifiers.Intimidation.toString() || "");
+    form.getTextField("Investigation").setText((await c).skillModifiers.Investigation.toString() || "");
+    form.getTextField("Arcana").setText((await c).skillModifiers.Arcana.toString() || "");
+    form.getTextField("Perception").setText((await c).skillModifiers.Perception.toString() || "");
+    form.getTextField("Nature").setText((await c).skillModifiers.Nature.toString() || "");
+    form.getTextField("Performance").setText((await c).skillModifiers.Performance.toString() || "");
+    form.getTextField("Medicine").setText((await c).skillModifiers.Medicine.toString() || "");
+    form.getTextField("Religion").setText((await c).skillModifiers.Religion.toString() || "");
+    form.getTextField("Stealth").setText((await c).skillModifiers.Stealth.toString() || "");
+    form.getTextField("Persuasion").setText((await c).skillModifiers.Persuasion.toString() || "");
+    form.getTextField("SleightofHand").setText((await c).skillModifiers["Sleight of Hand"].toString() || "");
+    form.getTextField("Survival").setText((await c).skillModifiers.Survival.toString() || "");
+    form.getTextField("Passive").setText((await c).skillModifiers.Perception.toString() || "");
+
+    // Languages & proficiencies
+    const proficiencyLang = [];
+    proficiencyLang.push('Proficiencies: ', (await c).proficiency, '\n Languages: ', (await c).language.join(', '));
+    form.getTextField("ProficiencyLang").setText(proficiencyLang.toString() || "");
+
+    // Equipment
+    form.getTextField("Equipment").setText((await c).equipment || "");
+
+    // Character personality & traits
+    form.getTextField("PersonalityTraits").setText((await c).personality || "");
+    form.getTextField("Ideals").setText((await c).ideal || "");
+    form.getTextField("Bonds").setText((await c).bond || "");
+    form.getTextField("Flaws").setText((await c).flaw || "");
+
+    // Features and Traits
+    form.getTextField("Features and Traits").setText((await c).features || "");
+
+    // == Page 2 == //
+    // Details 2
+    form.getTextField("CharacterName 2").setText((await c).charName || "");
+    form.getTextField("Age").setText((await c).age.toString() || "");
+    form.getTextField("Eyes").setText((await c).eye.toString() || "");
+    form.getTextField("Height").setText((await c).height || "");
+    form.getTextField("Skin").setText((await c).skin.toString() || "");
+    form.getTextField("Weight").setText((await c).weight.toString() || "");
+    form.getTextField("Hair").setText((await c).hair.toString() || "");
+
+    // Row 2
+    form.getTextField("CHARACTER IMAGE").setText((await c).appearance || "");
+    const AlliesOrgs = [];
+    AlliesOrgs.push('Allies: ', (await c).ally, '\n Organization: ', (await c).organization);
+    form.getTextField("Allies").setText(AlliesOrgs.toString() || "");
+
+    // Row 3/4
+    form.getTextField("Backstory").setText((await c).backstory || "");
+
+    // == Page 3 == //
+    // Spell info
+    form.getTextField("Spellcasting Class 2").setText((await c).spellClass || "");
+    form.getTextField("SpellcastingAbility 2").setText((await c).spellAbility.toString() || "");
+    form.getTextField("SpellSaveDC 2").setText((await c).spellDC.toString() || "");
+    form.getTextField("SpellAtkBonus 2").setText((await c).spellAB.toString() || "");
+
+    // Spells...
+    form.getTextField("Spells 1014").setText((await c).spells.cantrips[0].toString() || "");
+    form.getTextField("Spells 1016").setText((await c).spells.cantrips[1].toString() || "");
+    form.getTextField("Spells 1017").setText((await c).spells.cantrips[2]?.toString() || "");
+    form.getTextField("Spells 1018").setText((await c).spells.cantrips[3]?.toString() || "");
+    form.getTextField("Spells 1015").setText((await c).spells.spells[0].toString() || "");
+    form.getTextField("Spells 1023").setText((await c).spells.spells[1].toString() || "");
+    form.getTextField("Spells 1024").setText((await c).spells.spells[2]?.toString() || "");
+    const slots = (await c).spells.spells.length;
+    form.getTextField("SlotsTotal 19").setText((await c).slots.toString() || "");
+    form.getTextField("SlotsRemaining 19").setText((await c).slots.toString() || "");
+
+    form.flatten();
+}
+
+async function characterDownload(character){
+    
+}
+
+// Helper Functions
+function generateCharacterDescription({
     charRace,
-    charSubrace,
-    charBackground,
-    alignment,
+    charClass,
     charGender,
-    stats,
-    statMods,
-    skillProficiencies,
-    skillModifiers,
-    passivePerception,
-    proficiency,
-    language,
-    AC,
-    initiative,
-    speed,
-    HP,
-    hitDice,
-    equipment,
-    personality,
-    ideal,
-    bond,
-    flaw,
-    features,
+    charBackground,
     age,
-    height,
-    weight,
     eye,
     skin,
     hair,
-    ally,
-    organization,
-    appearance,
-    backstory,
-    spellClass,
-    spellAbility,
-    spellDC,
-    spellAB,
-    spells
-  };
-}
-
-// Download the current character as a filled-in PDF
-const generateBtn = document.getElementById("generateBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const displayDiv = document.getElementById("characterDisplay");
-
-let currentCharacter = null;
-
-// 👇 This function runs when the user clicks "Generate Character"
-async function fetchAndDisplayCharacter() {
-  displayDiv.innerHTML = "<p>Generating character...</p>";
-  downloadBtn.style.display = "none";
-
-  try {
-    // 👇 This is where the browser calls your backend API route
-    const response = await fetch("/api/character");  
-    if (!response.ok) throw new Error("Server error");
-
-    // 👇 Parse the JSON sent back from your server
-    const character = await response.json();
-
-    // Store and display it
-    currentCharacter = character;
-    displayCharacter(character);
-    downloadBtn.style.display = "inline-block";
-  } catch (err) {
-    console.error(err);
-    displayDiv.innerHTML = "<p>Error generating character. Please try again.</p>";
-  }
-}
-
-// Display the character info on screen
-function displayCharacter(character) {  
-}
-
-async function downloadPDF() {
-  if (!currentCharacter) return alert("Generate a character first!");
-
-  try {
-    const existingPdfBytes = await fetch("CharacterSheet.pdf").then(res => res.arrayBuffer());
-    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-    const form = pdfDoc.getForm();
-    const c = currentCharacter;
-
-    form.getTextField("CharacterName").setText(c.Name || "");
-    form.getTextField("ClassLevel").setText(`${c.Class || ""} ${c.Level || ""}`);
-    form.getTextField("Background").setText(c.Background || "");
-    form.getTextField("PlayerName").setText("Generated by AI");
-    form.getTextField("Race").setText(c.Race || "");
-    form.getTextField("Alignment").setText(c.Alignment || "");
-    form.getTextField("XP").setText("0");
-
-    form.getTextField("STR").setText(c.Strength?.toString() || "");
-    form.getTextField("STRmod").setText(modifierText(c.Strength));
-    form.getTextField("DEX").setText(c.Dexterity?.toString() || "");
-    form.getTextField("DEXmod").setText(modifierText(c.Dexterity));
-    form.getTextField("CON").setText(c.Constitution?.toString() || "");
-    form.getTextField("CONmod").setText(modifierText(c.Constitution));
-    form.getTextField("INT").setText(c.Intelligence?.toString() || "");
-    form.getTextField("INTmod").setText(modifierText(c.Intelligence));
-    form.getTextField("WIS").setText(c.Wisdom?.toString() || "");
-    form.getTextField("WISmod").setText(modifierText(c.Wisdom));
-    form.getTextField("CHA").setText(c.Charisma?.toString() || "");
-    form.getTextField("CHAmod").setText(modifierText(c.Charisma));
-
-    form.getTextField("AC").setText(c.ArmorClass?.toString() || "10");
-    form.getTextField("Initiative").setText(modifierText(c.Dexterity));
-    form.getTextField("Speed").setText(c.Speed?.toString() || "30");
-    form.getTextField("HPMax").setText(c.HitPoints?.toString() || "0");
-    form.getTextField("HPCurrent").setText(c.HitPoints?.toString() || "0");
-
-    form.getTextField("Skills").setText(
-      Array.isArray(c.Skills) ? c.Skills.join(", ") : c.Skills || ""
-    );
-    form.getTextField("OtherProficienciesLang").setText(
-      Array.isArray(c.Proficiencies) ? c.Proficiencies.join(", ") : c.Proficiencies || ""
-    );
-    form.getTextField("Equipment").setText(
-      Array.isArray(c.Equipment) ? c.Equipment.join(", ") : c.Equipment || ""
-    );
-
-    form.getTextField("SpellcastingClass").setText(c.Class || "");
-    form.getTextField("SpellSaveDC").setText(c.SpellSaveDC?.toString() || "");
-    form.getTextField("SpellAtkBonus").setText(c.SpellAttackBonus?.toString() || "");
-    form.getTextField("AttacksSpellcasting").setText(
-      Array.isArray(c.Spells) ? c.Spells.join(", ") : c.Spells || "None"
-    );
-
-    form.getTextField("PersonalityTraits").setText(c.PersonalityTraits || "");
-    form.getTextField("Ideals").setText(c.Ideals || "");
-    form.getTextField("Bonds").setText(c.Bonds || "");
-    form.getTextField("Flaws").setText(c.Flaws || "");
-
-    const features = [
-      `Race: ${c.Race}`,
-      `Class: ${c.Class}`,
-      `Background: ${c.Background}`,
-      `Alignment: ${c.Alignment}`,
-      "",
-      "Equipment:",
-      Array.isArray(c.Equipment) ? c.Equipment.join(", ") : c.Equipment || "None",
-    ].join("\n");
-    form.getTextField("FeaturesTraits").setText(features);
-
-    form.flatten();
-    const pdfBytes = await pdfDoc.save();
-
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${c.Name?.replace(/\s+/g, "_") || "Character"}_Sheet.pdf`;
-    link.click();
-  } catch (err) {
-    console.error("PDF Generation Error:", err);
-    alert("Failed to fill in the character sheet PDF.");
-  }
-}
-
-// Wire up the buttons
-generateBtn.addEventListener("click", fetchAndDisplayCharacter);
-downloadBtn.addEventListener("click", downloadPDF);
-
-
-//helper functions//
-function generateCharacterDescription({
-  charRace,
-  charClass,
-  charGender,
-  charBackground,
-  age,
-  eye,
-  skin,
-  hair,
-  height
+    height
 }) {
-  const mood = getRandom(["serious", "adventurous", "enigmatic", "determined", "mysterious"]);
-  const personality = getRandom(traits);
-  const style = getRandom([
-    "aura of quiet strength",
-    "piercing gaze",
-    "calm confidence",
-    "air of mystery",
-    "warm but cautious smile"
-  ]);
+    const mood = getRandom(["serious", "adventurous", "enigmatic", "determined", "mysterious"]);
+    const personality = getRandom(traits);
+    const style = getRandom([
+        "aura of quiet strength",
+        "piercing gaze",
+        "calm confidence",
+        "air of mystery",
+        "warm but cautious smile"
+    ]);
 
-  // Dragonborns don’t usually have hair
-  const hairPart = charRace === "Dragonborn"
-    ? ""
-    : `, and ${hair} hair`;
+    // Dragonborns don’t usually have hair
+    const hairPart = charRace === "Dragonborn"
+        ? ""
+        : `, and ${hair} hair`;
 
-  return `A ${age}-year-old ${charGender} ${charRace} ${charClass} with ${eye} eyes, ${skin} skin${hairPart}. Standing ${height} tall, they carry an ${style}. Once a ${charBackground}, they are ${personality} and ${mood} by nature.`;
+    return `A ${age}-year-old ${charGender} ${charRace} ${charClass} with ${eye} eyes, ${skin} skin${hairPart}. Standing ${height} tall, they carry an ${style}. Once a ${charBackground}, they are ${personality} and ${mood} by nature.`;
 }
 function generateBackstory({
-  charRace,
-  charClass,
-  charGender,
-  charBackground
+    charRace,
+    charClass,
+    charGender,
+    charBackground
 }) {
-  const origin = getRandom(origins);
-  const goal = getRandom(goals);
-  const quirk = getRandom(quirks);
-  const personality = getRandom(traits);
+    const origin = getRandom(origins);
+    const goal = getRandom(goals);
+    const quirk = getRandom(quirks);
+    const personality = getRandom(traits);
 
-  return `Born a ${charRace}, this ${charGender.toLowerCase()} ${charClass.toLowerCase()} ${origin}. As a ${charBackground.toLowerCase()}, they learned to be ${personality} and resourceful. Now, ${goal}. They ${quirk}, a small reminder of the life they've lived.`;
+    return `Born a ${charRace}, this ${charGender.toLowerCase()} ${charClass.toLowerCase()} ${origin}. As a ${charBackground.toLowerCase()}, they learned to be ${personality} and resourceful. Now, ${goal}. They ${quirk}, a small reminder of the life they've lived.`;
 }
 function getRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
@@ -1401,7 +1393,7 @@ function getLanguages(background, Class, race, subrace, subclass = null) {
 
     // Helper function to get a random language not already known
     function getRandomLanguage(exclude = []) {
-        const options = languages.filter(function(lang) {
+        const options = languages.filter(function (lang) {
             return !languagesKnown.includes(lang) && !exclude.includes(lang);
         });
         if (options.length === 0) return null; // nothing left to pick
@@ -1411,7 +1403,7 @@ function getLanguages(background, Class, race, subrace, subclass = null) {
 
     // Add race/subrace languages
     if (subrace && subraceLanguages[subrace]) {
-        subraceLanguages[subrace].forEach(function(lang) {
+        subraceLanguages[subrace].forEach(function (lang) {
             if (lang === 'Extra') {
                 const randomLang = getRandomLanguage(['Elvish']);
                 if (randomLang) languagesKnown.push(randomLang);
@@ -1444,14 +1436,14 @@ function getLanguages(background, Class, race, subrace, subclass = null) {
         if (typeof preferredEnemiesLang !== 'undefined') {
             const enemyKeys = Object.keys(preferredEnemiesLang);
             const chosenEnemy = enemyKeys[Math.floor(Math.random() * enemyKeys.length)];
-            const enemyLangs = preferredEnemiesLang[chosenEnemy].filter(function(lang) {
+            const enemyLangs = preferredEnemiesLang[chosenEnemy].filter(function (lang) {
                 return !languagesKnown.includes(lang);
             });
             if (enemyLangs.length > 0) languagesKnown.push(enemyLangs[Math.floor(Math.random() * enemyLangs.length)]);
         }
     } else if (Class === 'Monk') {
         // Monks at high level can know all languages
-        languages.forEach(function(lang) {
+        languages.forEach(function (lang) {
             if (!languagesKnown.includes(lang)) {
                 languagesKnown.push(lang);
             }
@@ -1729,7 +1721,7 @@ function getFeatures(race, subrace, Class) {
     // Add race and subrace features
     if (raceFeatures[race]) {
         if (typeof raceFeatures[race] === 'string') {
-            featuresArray.push(raceFeatures[race]); // for races like Dragonborn, Half-Elf, etc.
+            featuresArray.push(raceFeatures[race]); // for races like Dragonborn, Half-Elf, et(await c).
         } else if (subrace && raceFeatures[race][subrace]) {
             featuresArray.push(raceFeatures[race][subrace]); // for races with subraces
         }
@@ -1800,8 +1792,8 @@ function getSpells(Class) {
         const spell1 = allSpells[Class]['spells'][Math.floor(Math.random() * allSpells[Class]['spells'].length)];
         const spell2 = allSpells[Class]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[Class]['spells'].length - 1))];
 
-        spells['cantrips'].push(cantrip1, cantrip2);
-        spells['spells'].push(spell1, spell2);
+        spells.cantrips.push(cantrip1, cantrip2);
+        spells.spells.push(spell1, spell2);
     } else if (Class == ('Wizard' || 'Cleric')) {
         const cantrip1 = allSpells[Class]['cantrips'][Math.floor(Math.random() * allSpells[Class]['cantrips'].length)];
         const cantrip2 = allSpells[Class]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[Class]['cantrips'].length - 1))];
@@ -1809,8 +1801,8 @@ function getSpells(Class) {
         const spell1 = allSpells[Class]['spells'][Math.floor(Math.random() * allSpells[Class]['spells'].length)];
         const spell2 = allSpells[Class]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[Class]['spells'].length - 1))];
 
-        spells['cantrips'].push(cantrip1, cantrip2, cantrip3);
-        spells['spells'].push(spell1, spell2);
+        spells.cantrips.push(cantrip1, cantrip2, cantrip3);
+        spells.spells.push(spell1, spell2);
     } else if (Class == ('Sorcerer')) {
         const cantrip1 = allSpells[Class]['cantrips'][Math.floor(Math.random() * allSpells[Class]['cantrips'].length)];
         const cantrip2 = allSpells[Class]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[Class]['cantrips'].length - 1))];
@@ -1819,8 +1811,8 @@ function getSpells(Class) {
         const spell1 = allSpells[Class]['spells'][Math.floor(Math.random() * allSpells[Class]['spells'].length)];
         const spell2 = allSpells[Class]['spells'].filter(spell => spell != spell1)[Math.floor(Math.random() * (allSpells[Class]['spells'].length - 1))];
 
-        spells['cantrips'].push(cantrip1, cantrip2, cantrip3, cantrip4);
-        spells['spells'].push(spell1, spell2);
+        spells.cantrips.push(cantrip1, cantrip2, cantrip3, cantrip4);
+        spells.spells.push(spell1, spell2);
     } else if (Class == 'Bard') {
         const cantrip1 = allSpells[Class]['cantrips'][Math.floor(Math.random() * allSpells[Class]['cantrips'].length)];
         const cantrip2 = allSpells[Class]['cantrips'].filter(cantrip => cantrip != cantrip1)[Math.floor(Math.random() * (allSpells[Class]['cantrips'].length - 1))];
@@ -1829,8 +1821,8 @@ function getSpells(Class) {
         const spell3 = allSpells[Class]['spells'].filter(spell => spell != (spell1 || spell2))[Math.floor(Math.random() * (allSpells[Class]['spells'].lengt - 2))];
         const spell4 = allSpells[Class]['spells'].filter(spell => spell != (spell1 || spell2 || spell3))[Math.floor(Math.random() * (allSpells[Class]['spells'].length - 3))];
 
-        spells['cantrips'].push(cantrip1, cantrip2);
-        spells['spells'].push(spell1, spell2, spell3, spell4);
+        spells.cantrips.push(cantrip1, cantrip2);
+        spells.spells.push(spell1, spell2, spell3, spell4);
     }
     return spells;
 }
@@ -1907,13 +1899,6 @@ function getSpellAttackBonus(Class, stats) {
     return ABs[Class];
 }
 
-//call
+// Call
 generateCharacter().then(console.log).catch(console.error);
-export { generateCharacter };
-
-// === Event Listeners ===
-generateBtn.addEventListener("click", fetchAndDisplayCharacter);
-downloadBtn.addEventListener("click", downloadPDF);
-
-// Auto-generate a character when the page loads
-window.addEventListener("DOMContentLoaded", fetchAndDisplayCharacter);
+//export { generateCharacter };
