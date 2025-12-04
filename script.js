@@ -1,8 +1,8 @@
 // OpenAI
-import OpenAI from "openai";
-import { config } from 'dotenv';
-config({ path: './code.env' });
-const client = new OpenAI();
+//import OpenAI from "openai";
+//import { config } from 'dotenv';
+//config({ path: './code.env' });
+//const client = new OpenAI();
 
 // Consts
 const profBonus = 2;
@@ -512,30 +512,30 @@ async function generateCharacter() {
 
     // === GPT-4 appearance + backstory ===
     let appearance = "", backstory = "";
-    try {
-        const appearancePrompt = charRace === "Dragonborn"
-            ? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-            : `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+    //try {
+        //const appearancePrompt = charRace === "Dragonborn"
+            //? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+            //: `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
-        const appearanceRes = await client.chat.completions.create({
-            model: "gpt-4.1",
-            messages: [{ role: "user", content: appearancePrompt }]
-        });
+        //const appearanceRes = await client.chat.completions.create({
+            //model: "gpt-4.1",
+            //messages: [{ role: "user", content: appearancePrompt }]
+        //});
 
-        const backstoryRes = await client.chat.completions.create({
-            model: "gpt-4.1",
-            messages: [{
-                role: "user",
-                content: `Write a concise backstory (100-150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
-            }]
-        });
+        //const backstoryRes = await client.chat.completions.create({
+            //model: "gpt-4.1",
+            //messages: [{
+                //role: "user",
+                //content: `Write a concise backstory (100-150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
+            //}]
+        //});
 
-        appearance = appearanceRes.choices[0].message.content.trim();
-        backstory = backstoryRes.choices[0].message.content.trim();
-    } catch (err) {
+        //appearance = appearanceRes.choices[0].message.content.trim();
+        //backstory = backstoryRes.choices[0].message.content.trim();
+    //} catch (err) {
         appearance = generateCharacterDescription(charData);
         backstory = generateBackstory(charData);
-    }
+    //}
 
     return {
         charName,
@@ -1900,5 +1900,6 @@ function getSpellAttackBonus(Class, stats) {
 }
 
 // Call
+console.log(generateCharacter);
 generateCharacter().then(console.log).catch(console.error);
 //export { generateCharacter };
