@@ -23,6 +23,21 @@ const subclasses = {
     'Warlock': ['The Archfey', 'The Fiend', 'The Great Old One'],
     'Wizard': ['School of Abjuration', 'School of Conjuration', 'School of Divination', 'School of Enchantment', 'School of Evocation', 'School of Illusion', 'School of Necromancy', 'School of Transmutation']
 };
+const savingThrowProfs = {
+    'Artificer' : ['CON', 'INT'],
+    'Barbarian' : ['STR', 'CON'],
+    'Bard' : ['DEX', 'CHA'],
+    'Cleric' : ['WIS', 'CHA'],
+    'Druid' : ['INT', 'WIS'],
+    'Fighter' : ['CON', 'STR'],
+    'Monk' : ['STR', 'DEX'],
+    'Paladin' : ['WIS', 'CHA'],
+    'Ranger' : ['STR', 'DEX'],
+    'Rogue' : ['DEX', 'INT'],
+    'Sorcerer' : ['CON', 'CHA'],
+    'Warlock' : ['WIS', 'CHA'],
+    'Wizard' : ['INT', 'WIS']
+}
 const races = ['Dwarf', 'Elf', 'Halfling', 'Human', 'Dragonborn', 'Gnome', 'Half-Elf', 'Half-Orc', 'Tiefling'];
 const charSubraces = {
     'Dwarf': ['Hill Dwarf', 'Mountain Dwarf'],
@@ -457,8 +472,65 @@ const quirks = [
     "has an odd superstition about the number seven"
 ];
 
-
-// Main
+//Main
+function console(character) {
+    const c = character
+    console.log("********* D&D CHARACTER CREATOR *********");
+    console.log("This program automatically generates a\ncharacter upon loading.");
+    console.log("Here's a random character:");
+    console.log("**** GENERAL ****");
+    console.log("Name: " + c.charName);
+    console.log("Race: " + c.charRace + (c.charSubrace ? " (" + c.charSubrace + ")" : ""));
+    console.log("Class: " + c.charClass + (c.charSubclass ? " (" + c.charSubclass + ")" : ""));
+    console.log("Background: " + c.charBackground);
+    console.log("Alignment: " + c.alignment);
+    console.log("Gender: " + c.charGender);
+    console.log("Health Points: " + c.HP);
+    console.log("Hit Dice: " + c.hitDice);
+    console.log("Armor Class: " + c.AC);
+    console.log("Initiative: " + c.initiative);
+    console.log("Speed: " + c.speed);
+    console.log("**** STATS ****");
+    for (const [statName, value] of Object.entries(c.stats)) {
+        console.log(statName + ": " + value + (savingThrowProfs[c.charClass]?.includes(statName) ? " (Proficient)" : ""));
+    }
+    console.log("**** SKILLS ****");
+    for (const [skillName, value] of Object.entries(c.skillModifiers)) {
+        console.log(skillName + ": " + value + (c.skillProficiencies[skillName] ? " (Proficient)" : ""));
+    }
+    console.log("Passive Perception: " + c.passivePerception);
+    console.log("**** PROFICIENCIES/LANGUAGES ****");
+    console.log("Proficiencies: " + c.proficiency);
+    console.log("Languages: " + c.language);
+    console.log("**** PERSONALITY & FEATURES ****");
+    console.log("Personality Trait: " + c.personality);
+    console.log("Ideal: " + c.ideal);
+    console.log("Flaw: " + c.flaw);
+    console.log("Bond: " + c.bond);
+    console.log("Features: " + c.features);
+    console.log("**** Equipment ****");
+    console.log("Equipment: " + c.equipment);
+    console.log("**** APPEARANCE ****");
+    console.log("General: " + c.appearance);
+    console.log("Background: " + c.background);
+    console.log("Eye Color: " + c.eye);
+    console.log("Hair Color: " + c.hair);
+    console.log("Skin Color: " + c.skin);
+    console.log("Weight: " + c.weight);
+    console.log("Height: " + c.height);
+    console.log("Age: " + c.age);
+    console.log("**** ORGANIZATIONS & ALLIES ****");
+    console.log("Organizations: " + c.organization);
+    console.log("Allies: " + c.ally);
+    console.log("**** SPELLCASTING ****");
+    console.log("Spellcasting Class:" + c.spellClass);
+    console.log("Spellcasting Ability: " + c.spellAbility)
+    console.log("Spell Save DC: " +c.spellDC);
+    console.log("Spell Attack Bonus: " + c.spellAB);
+    console.log("Cantrips: " + c.spells.cantrips);
+    console.log("Spells: " + c.spells.spells)
+    console.log("*****************************************");
+}
 async function generateCharacter() {
     const charRace = getRandom(races);
     const charGender = getRandom(genders);
@@ -513,28 +585,28 @@ async function generateCharacter() {
     // === GPT-4 appearance + backstory ===
     let appearance = "", backstory = "";
     //try {
-        //const appearancePrompt = charRace === "Dragonborn"
-            //? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
-            //: `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
+    //const appearancePrompt = charRace === "Dragonborn"
+    //? `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes and ${skin} skin. They are ${height} tall.`
+    //: `Write a short vivid character description for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D. They are ${age} years old with ${eye} eyes, ${skin} skin, and ${hair} hair. They are ${height} tall.`;
 
-        //const appearanceRes = await client.chat.completions.create({
-            //model: "gpt-4.1",
-            //messages: [{ role: "user", content: appearancePrompt }]
-        //});
+    //const appearanceRes = await client.chat.completions.create({
+    //model: "gpt-4.1",
+    //messages: [{ role: "user", content: appearancePrompt }]
+    //});
 
-        //const backstoryRes = await client.chat.completions.create({
-            //model: "gpt-4.1",
-            //messages: [{
-                //role: "user",
-                //content: `Write a concise backstory (100-150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
-            //}]
-        //});
+    //const backstoryRes = await client.chat.completions.create({
+    //model: "gpt-4.1",
+    //messages: [{
+    //role: "user",
+    //content: `Write a concise backstory (100-150 words) for a ${charGender} ${charRace} ${charClass} who used to be a ${charBackground} in D&D.`
+    //}]
+    //});
 
-        //appearance = appearanceRes.choices[0].message.content.trim();
-        //backstory = backstoryRes.choices[0].message.content.trim();
+    //appearance = appearanceRes.choices[0].message.content.trim();
+    //backstory = backstoryRes.choices[0].message.content.trim();
     //} catch (err) {
-        appearance = generateCharacterDescription(charData);
-        backstory = generateBackstory(charData);
+    appearance = generateCharacterDescription(charData);
+    backstory = generateBackstory(charData);
     //}
 
     return {
@@ -581,7 +653,6 @@ async function generateCharacter() {
         spells
     };
 }
-
 async function characterView(character) {
     const currentCharacter = generateCharacter();
     const existingPdfBytes = await fetch("CharacterSheet.pdf").then(res => res.arrayBuffer());
@@ -592,7 +663,7 @@ async function characterView(character) {
     // Character Details
     form.getTextField("CharacterName").setText((await c).charName || "");
     const charClassSubclass = [];
-    charClassSubclass.push((await c).charClass, ' (', (await c). charSubclass, ') ', ' 1');
+    charClassSubclass.push((await c).charClass, ' (', (await c).charSubclass, ') ', ' 1');
     form.getTextField("ClassLevel").setText(charClassSubclass.toString() || "");
     form.getTextField("Background").setText((await c).charBackground || "");
     form.getTextField("PlayerName").setText("");
@@ -615,6 +686,7 @@ async function characterView(character) {
     form.getTextField("CHAmod").setText((await c).statMods.CHA);
 
     // Saving Throws
+    form.getTextField("").
 
     // Middle Data
     form.getTextField("AC").setText((await c).AC?.toString() || "10");
@@ -702,10 +774,6 @@ async function characterView(character) {
     form.getTextField("SlotsRemaining 19").setText((await c).slots.toString() || "");
 
     form.flatten();
-}
-
-async function characterDownload(character){
-    
 }
 
 // Helper Functions
@@ -1899,7 +1967,7 @@ function getSpellAttackBonus(Class, stats) {
     return ABs[Class];
 }
 
-// Call
-console.log(generateCharacter);
-generateCharacter().then(console.log).catch(console.error);
-//export { generateCharacter };
+(async () => {
+    const character = await generateCharacter();
+    console(character);
+})();
