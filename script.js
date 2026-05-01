@@ -1,12 +1,12 @@
-// OpenAI
-//import OpenAI from "openai";
-//import { config } from 'dotenv';
-//config({ path: './code.env' });
-//const client = new OpenAI();
+/* OpenAI
+import OpenAI from "openai";
+import { config } from 'dotenv';
+config({ path: './code.env' });
+const client = new OpenAI();
+*/
 
 // Consts
 const profBonus = 2;
-
 const classes = ['Artificer', 'Barbarian', 'Bard', 'Cleric', 'Druid', 'Fighter', 'Monk', 'Paladin', 'Ranger', 'Rogue', 'Sorcerer', 'Warlock', 'Wizard'];
 const subclasses = {
     'Artificer': ['Alchemist', 'Armorer', 'Artillerist', 'Battle Smith'],
@@ -473,7 +473,7 @@ const quirks = [
 ];
 
 //Main
-function console(character) {
+function consol(character) {
     const c = character
     console.log("********* D&D CHARACTER CREATOR *********");
     console.log("This program automatically generates a\ncharacter upon loading.");
@@ -512,7 +512,7 @@ function console(character) {
     console.log("Equipment: " + c.equipment);
     console.log("**** APPEARANCE ****");
     console.log("General: " + c.appearance);
-    console.log("Background: " + c.background);
+    console.log("Backstory: " + c.backstory);
     console.log("Eye Color: " + c.eye);
     console.log("Hair Color: " + c.hair);
     console.log("Skin Color: " + c.skin);
@@ -653,12 +653,11 @@ async function generateCharacter() {
         spells
     };
 }
-async function characterView(character) {
-    const currentCharacter = generateCharacter();
+async function characterView() {
+    const c = generateCharacter();
     const existingPdfBytes = await fetch("CharacterSheet.pdf").then(res => res.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
     const form = pdfDoc(await c).getForm();
-    const c = currentCharacter;
 
     // Character Details
     form.getTextField("CharacterName").setText((await c).charName || "");
@@ -827,7 +826,7 @@ function rollStat() {
     return rolls.slice(0, 3).reduce((a, b) => a + b);
 }
 function getMod(stat) {
-    return Math.round((stat - 10) / 2);
+    return Math.floor((stat - 10) / 2);
 }
 function getName(race, gender) {
     let name = '';
@@ -1325,9 +1324,17 @@ function getSkillModifiers(modifiers, proficient) {
         const ability = skills[skillName]; // e.g. 'DEX' for Acrobatics
         const baseMod = modifiers[ability]; // e.g. modifiers.DEX
         if (proficient[skillName]) {
-            skillMods[skillName] = baseMod + profBonus;
+            if (baseMod >= 0) {
+                skillMods[skillName] = "+" + (baseMod + profBonus);
+            } else {
+                skillMods[skillName] = "-" + (Math.abs(baseMod) + profBonus);
+            }
         } else {
-            skillMods[skillName] = baseMod;
+            if (baseMod >= 0) {
+                skillMods[skillName] = "+" + baseMod;
+            } else {
+                skillMods[skillName] = "-" + Math.abs(baseMod);
+            }
         }
     });
     return skillMods;
@@ -1838,14 +1845,14 @@ function getHeight(race) {
 function getWeight(race) {
     const weights = {
         'Dwarf': '150 lb',
-        'Elf': Math.floor(Math.random() * (145 - 90) + 90) + ' lb',
-        'Halfling': Math.floor(Math.random * (45 - 35) + 35) + ' lb',
-        'Human': Math.floor(Math.random * (250 - 125) + 125) + ' lb',
-        'Dragonborn': Math.floor(Math.random * (360 - 175) + 175) + ' lb',
-        'Gnome': Math.floor(Math.random * (45 - 35) + 35) + ' lb',
-        'Half-Elf': Math.floor(Math.random * (180 - 100) + 100) + ' lb',
-        'Half-Orc': Math.floor(Math.random * (225 - 155) + 155) + ' lb',
-        'Tiefling': Math.floor(Math.random * (220 - 135) + 135) + ' lb'
+        'Elf': (Math.floor(Math.random() * (145 - 90 + 1) + 90)) + ' lb',
+        'Halfling': (Math.floor(Math.random() * (45 - 35 + 1) + 35)) + ' lb',
+        'Human': (Math.floor(Math.random() * (250 - 125 + 1) + 125)) + ' lb',
+        'Dragonborn': (Math.floor(Math.random() * (360 - 175 + 1) + 175)) + ' lb',
+        'Gnome': (Math.floor(Math.random() * (45 - 35 + 1) + 35)) + ' lb',
+        'Half-Elf': (Math.floor(Math.random() * (180 - 100 + 1) + 100)) + ' lb',
+        'Half-Orc': (Math.floor(Math.random() * (225 - 155 + 1) + 155)) + ' lb',
+        'Tiefling': (Math.floor(Math.random() * (220 - 135 + 1) + 135)) + ' lb'
     }
     return weights[race];
 }
@@ -1891,6 +1898,9 @@ function getSpells(Class) {
 
         spells.cantrips.push(cantrip1, cantrip2);
         spells.spells.push(spell1, spell2, spell3, spell4);
+    } else {
+        spells.cantrips.push('None');
+        spells.spells.push('None'); 
     }
     return spells;
 }
@@ -1966,6 +1976,22 @@ function getSpellAttackBonus(Class, stats) {
     }
     return ABs[Class];
 }
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+    const pdfBytes = await characterView();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    document.getElementById('pdfIframe').src = url;
+    document.getElementById('downloadBtn').style.display = 'block';
+});
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+    const pdfBytes = await characterView();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'character.pdf';
+    link.click();
+});
 
 (async () => {
     const character = await generateCharacter();
